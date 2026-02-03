@@ -1,0 +1,52 @@
+/*
+ * KUDA FOCUS - Application Stylesheet
+ * Minimalist design with dark theme
+ */
+
+/* Root styling */
+.root {
+    -fx-background-color: rgb(26, 26, 26);
+    -fx-font-family: "System";
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: rgb(88, 166, 255);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 15 30;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: rgb(108, 186, 255);
+}
+
+.button:pressed {
+    -fx-background-color: rgb(68, 146, 235);
+}
+
+/* Secondary button */
+.button-secondary {
+    -fx-background-color: rgb(35, 35, 35);
+    -fx-text-fill: rgb(180, 180, 180);
+}
+
+.button-secondary:hover {
+    -fx-background-color: rgb(45, 45, 45);
+}
+
+/* Danger button */
+.button-danger {
+    -fx-background-color: rgb(255, 69, 58);
+}
+
+.button-danger:hover {
+    -fx-background-color: rgb(255, 89, 78);
+}

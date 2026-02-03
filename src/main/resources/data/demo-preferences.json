@@ -1,0 +1,52 @@
+{
+  "defaultDuration": 1500,
+  "lastSelectedApps": [
+    "Discord",
+    "Steam",
+    "Instagram"
+  ],
+  "appRegistry": {
+    "Discord": {
+      "processName": "Discord",
+      "displayName": "Discord",
+      "category": "Social Media",
+      "commonlyBlocked": true,
+      "iconPath": ""
+    },
+    "Steam": {
+      "processName": "Steam",
+      "displayName": "Steam",
+      "category": "Gaming",
+      "commonlyBlocked": true,
+      "iconPath": ""
+    },
+    "Instagram": {
+      "processName": "Instagram",
+      "displayName": "Instagram",
+      "category": "Social Media",
+      "commonlyBlocked": true,
+      "iconPath": ""
+    },
+    "Chrome": {
+      "processName": "Google Chrome",
+      "displayName": "Chrome",
+      "category": "Browser",
+      "commonlyBlocked": false,
+      "iconPath": ""
+    },
+    "Messages": {
+      "processName": "Messages",
+      "displayName": "Messages",
+      "category": "Social Media",
+      "commonlyBlocked": true,
+      "iconPath": ""
+    },
+    "Slack": {
+      "processName": "Slack",
+      "displayName": "Slack",
+      "category": "Communication",
+      "commonlyBlocked": false,
+      "iconPath": ""
+    }
+  }
+}

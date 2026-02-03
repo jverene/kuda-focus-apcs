@@ -1,0 +1,74 @@
+{
+  "sessions": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "date": "2024-01-26",
+      "startTime": "2024-01-26T14:30:00",
+      "plannedDuration": 1500,
+      "actualDuration": 1500,
+      "focusScore": 95,
+      "completed": true,
+      "blockedApps": [
+        "Discord",
+        "Steam"
+      ],
+      "violations": [
+        {
+          "timestamp": "2024-01-26T14:45:00",
+          "appName": "Discord",
+          "durationSeconds": 20,
+          "dismissCount": 1
+        }
+      ]
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "date": "2024-01-27",
+      "startTime": "2024-01-27T10:00:00",
+      "plannedDuration": 2700,
+      "actualDuration": 2700,
+      "focusScore": 85,
+      "completed": true,
+      "blockedApps": [
+        "Discord",
+        "Steam",
+        "Instagram"
+      ],
+      "violations": [
+        {
+          "timestamp": "2024-01-27T10:30:00",
+          "appName": "Steam",
+          "durationSeconds": 60,
+          "dismissCount": 4
+        },
+        {
+          "timestamp": "2024-01-27T11:00:00",
+          "appName": "Discord",
+          "durationSeconds": 30,
+          "dismissCount": 2
+        }
+      ]
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "date": "2024-01-27",
+      "startTime": "2024-01-27T16:00:00",
+      "plannedDuration": 3600,
+      "actualDuration": 3600,
+      "focusScore": 92,
+      "completed": true,
+      "blockedApps": [
+        "Discord",
+        "Messages"
+      ],
+      "violations": [
+        {
+          "timestamp": "2024-01-27T16:45:00",
+          "appName": "Messages",
+          "durationSeconds": 15,
+          "dismissCount": 1
+        }
+      ]
+    }
+  ]
+}
