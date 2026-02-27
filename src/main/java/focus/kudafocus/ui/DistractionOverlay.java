@@ -10,8 +10,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.geometry.Rectangle2D;
 
 /**
  * Full-screen distraction overlay that appears when blocked apps are detected.
@@ -141,7 +143,7 @@ public class DistractionOverlay {
         // Create stage (window)
         overlayStage = new Stage();
         overlayStage.initStyle(StageStyle.UNDECORATED); // No title bar
-        overlayStage.initModality(Modality.APPLICATION_MODAL); // Block other windows
+        overlayStage.initModality(Modality.NONE);
 
         // Create components
         createComponents();
@@ -156,9 +158,13 @@ public class DistractionOverlay {
         // Set always on top
         overlayStage.setAlwaysOnTop(true);
 
-        // Full screen
-        overlayStage.setFullScreen(true);
-        overlayStage.setFullScreenExitHint(""); // Hide exit hint
+        // Use full-screen sized bounds instead of JavaFX fullscreen mode to
+        // avoid black-screen artifacts on dismiss on some macOS setups.
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        overlayStage.setX(bounds.getMinX());
+        overlayStage.setY(bounds.getMinY());
+        overlayStage.setWidth(bounds.getWidth());
+        overlayStage.setHeight(bounds.getHeight());
     }
 
     /**
@@ -251,8 +257,9 @@ public class DistractionOverlay {
         // Record dismissal in session
         focusSession.recordDismissal();
 
-        // Hide overlay
-        hide();
+        // Close overlay to fully release the stage and avoid stale fullscreen
+        // rendering artifacts on some systems.
+        close();
 
         // Notify callback
         if (callback != null) {

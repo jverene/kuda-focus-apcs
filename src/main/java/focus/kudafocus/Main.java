@@ -231,28 +231,34 @@ public class Main extends Application {
      * Shows the distraction overlay (when blocked app detected)
      */
     private void showDistractionOverlay(String appName) {
-        if (distractionOverlay == null && currentSession != null) {
-            System.out.println("⚠️  VIOLATION DETECTED: " + appName);
-
-            // Create overlay
-            distractionOverlay = new DistractionOverlay(currentSession, appName);
-
-            // Set up callback
-            distractionOverlay.setCallback(new DistractionOverlay.OverlayCallback() {
-                @Override
-                public void onDismissed() {
-                    System.out.println("Overlay dismissed by user");
-                }
-
-                @Override
-                public void onAppStillRunning() {
-                    System.out.println("App still running - overlay will reappear");
-                }
-            });
-
-            // Show overlay
-            distractionOverlay.show();
+        if (currentSession == null) {
+            return;
         }
+
+        System.out.println("⚠️  VIOLATION DETECTED: " + appName);
+
+        // Recreate overlay so message reflects latest detected app/website.
+        if (distractionOverlay != null) {
+            distractionOverlay.close();
+        }
+
+        distractionOverlay = new DistractionOverlay(currentSession, appName);
+
+        // Set up callback
+        distractionOverlay.setCallback(new DistractionOverlay.OverlayCallback() {
+            @Override
+            public void onDismissed() {
+                System.out.println("Overlay dismissed by user");
+            }
+
+            @Override
+            public void onAppStillRunning() {
+                System.out.println("App still running - overlay will reappear");
+            }
+        });
+
+        // Show overlay
+        distractionOverlay.show();
     }
 
     // ===== EVENT HANDLERS =====

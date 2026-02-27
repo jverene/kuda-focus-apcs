@@ -14,17 +14,20 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,9 +36,7 @@ import java.util.stream.Collectors;
  */
 public class AppSelectionModal extends Stage {
 
-    private static final List<String> COMMON_DISTRACTIONS = Arrays.asList(
-            "Discord", "Instagram", "Steam", "Messages", "YouTube", "TikTok", "X", "Reddit"
-    );
+    private static final Map<String, String> COMMON_DISTRACTIONS = createCommonDistractions();
 
     private final Set<String> selectedApps;
     private final ObservableList<String> allApps;
@@ -84,6 +85,26 @@ public class AppSelectionModal extends Stage {
         scrollPane.setPrefViewportHeight(320);
         scrollPane.setStyle("-fx-background: " + toRGBCode(UIConstants.BACKGROUND_PRIMARY) + ";");
 
+        HBox quickActionRow = new HBox(UIConstants.SPACING_SM);
+        quickActionRow.setAlignment(Pos.CENTER_LEFT);
+
+        Button selectAllDistractingButton = new Button("Select All Distracting");
+        selectAllDistractingButton.setFont(UIConstants.getSmallFont());
+        selectAllDistractingButton.setOnAction(event -> {
+            selectedApps.addAll(COMMON_DISTRACTIONS.keySet());
+            renderAppList(searchField.getText());
+            updateStatusLabel();
+        });
+
+        Button clearAllButton = new Button("Clear All");
+        clearAllButton.setFont(UIConstants.getSmallFont());
+        clearAllButton.setOnAction(event -> {
+            selectedApps.clear();
+            renderAppList(searchField.getText());
+            updateStatusLabel();
+        });
+        quickActionRow.getChildren().addAll(selectAllDistractingButton, clearAllButton);
+
         HBox buttonRow = new HBox(UIConstants.SPACING_MD);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
 
@@ -101,7 +122,7 @@ public class AppSelectionModal extends Stage {
         });
 
         buttonRow.getChildren().addAll(cancelButton, confirmButton);
-        content.getChildren().addAll(titleLabel, searchField, statusLabel, scrollPane, buttonRow);
+        content.getChildren().addAll(titleLabel, searchField, quickActionRow, statusLabel, scrollPane, buttonRow);
         root.setCenter(content);
 
         loadAvailableApps();
@@ -124,7 +145,7 @@ public class AppSelectionModal extends Stage {
     }
 
     private void loadAvailableApps() {
-        Set<String> appSet = new HashSet<>(COMMON_DISTRACTIONS);
+        Set<String> appSet = new HashSet<>(COMMON_DISTRACTIONS.keySet());
         AppMonitor monitor = AppMonitor.createForCurrentOS();
         for (ProcessInfo process : monitor.getRunningProcesses(true)) {
             String display = process.getDisplayName();
@@ -135,7 +156,7 @@ public class AppSelectionModal extends Stage {
 
         List<String> sortedApps = appSet.stream()
                 .sorted(Comparator
-                        .comparing((String app) -> !COMMON_DISTRACTIONS.contains(app))
+                        .comparing((String app) -> !COMMON_DISTRACTIONS.containsKey(app))
                         .thenComparing(String::compareToIgnoreCase))
                 .collect(Collectors.toList());
         allApps.setAll(sortedApps);
@@ -150,6 +171,11 @@ public class AppSelectionModal extends Stage {
                 .collect(Collectors.toList());
 
         for (String appName : filtered) {
+            HBox appRow = new HBox(UIConstants.SPACING_MD);
+            appRow.setAlignment(Pos.CENTER_LEFT);
+            appRow.setPadding(new Insets(UIConstants.SPACING_SM));
+            appRow.setStyle("-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_SECONDARY) + "; -fx-background-radius: 8;");
+
             CheckBox checkBox = new CheckBox(appName);
             checkBox.setFont(UIConstants.getBodyFont());
             checkBox.setTextFill(UIConstants.TEXT_PRIMARY);
@@ -162,7 +188,21 @@ public class AppSelectionModal extends Stage {
                 }
                 updateStatusLabel();
             });
-            appListContainer.getChildren().add(checkBox);
+
+            Label categoryLabel = new Label(getCategory(appName));
+            categoryLabel.setFont(UIConstants.getTinyFont());
+            categoryLabel.setTextFill(UIConstants.TEXT_MUTED);
+            categoryLabel.setStyle(
+                    "-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_PRIMARY) + ";" +
+                            "-fx-padding: 3 8 3 8;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            appRow.getChildren().addAll(checkBox, spacer, categoryLabel);
+            appListContainer.getChildren().add(appRow);
         }
 
         if (filtered.isEmpty()) {
@@ -180,10 +220,31 @@ public class AppSelectionModal extends Stage {
                 : String.format("%d app%s selected", count, count == 1 ? "" : "s"));
     }
 
+    private String getCategory(String appName) {
+        String category = COMMON_DISTRACTIONS.get(appName);
+        if (category != null) {
+            return category;
+        }
+        return "Running App";
+    }
+
     private String toRGBCode(javafx.scene.paint.Color color) {
         return String.format("rgb(%d, %d, %d)",
                 (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
+    }
+
+    private static Map<String, String> createCommonDistractions() {
+        Map<String, String> apps = new LinkedHashMap<>();
+        apps.put("Discord", "Social");
+        apps.put("Instagram", "Social");
+        apps.put("Steam", "Gaming");
+        apps.put("Messages", "Messaging");
+        apps.put("YouTube", "Video");
+        apps.put("TikTok", "Video");
+        apps.put("X", "Social");
+        apps.put("Reddit", "Social");
+        return apps;
     }
 }
