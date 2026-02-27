@@ -2,6 +2,8 @@ package focus.kudafocus.ui;
 
 import focus.kudafocus.monitoring.AppMonitor;
 import focus.kudafocus.monitoring.ProcessInfo;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -20,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -38,18 +41,23 @@ public class AppSelectionModal extends Stage {
 
     private static final Map<String, String> COMMON_DISTRACTIONS = createCommonDistractions();
 
+    private final AppMonitor appMonitor;
     private final Set<String> selectedApps;
     private final ObservableList<String> allApps;
     private final VBox appListContainer;
     private final Label statusLabel;
+    private final TextField searchField;
+    private Timeline refreshTimeline;
 
     private boolean confirmed;
 
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps) {
+        this.appMonitor = AppMonitor.createForCurrentOS();
         this.selectedApps = new HashSet<>(initiallySelectedApps);
         this.allApps = FXCollections.observableArrayList();
         this.appListContainer = new VBox(UIConstants.SPACING_SM);
         this.statusLabel = new Label();
+        this.searchField = new TextField();
         this.confirmed = false;
 
         initOwner(owner);
@@ -68,7 +76,6 @@ public class AppSelectionModal extends Stage {
         titleLabel.setFont(UIConstants.getHeadingFont());
         titleLabel.setTextFill(UIConstants.TEXT_PRIMARY);
 
-        TextField searchField = new TextField();
         searchField.setPromptText("Search running apps...");
         searchField.setFont(UIConstants.getBodyFont());
         searchField.setStyle(
@@ -103,7 +110,10 @@ public class AppSelectionModal extends Stage {
             renderAppList(searchField.getText());
             updateStatusLabel();
         });
-        quickActionRow.getChildren().addAll(selectAllDistractingButton, clearAllButton);
+        Button refreshButton = new Button("Refresh Apps");
+        refreshButton.setFont(UIConstants.getSmallFont());
+        refreshButton.setOnAction(event -> refreshAvailableAppsAndRender());
+        quickActionRow.getChildren().addAll(selectAllDistractingButton, clearAllButton, refreshButton);
 
         HBox buttonRow = new HBox(UIConstants.SPACING_MD);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
@@ -125,13 +135,14 @@ public class AppSelectionModal extends Stage {
         content.getChildren().addAll(titleLabel, searchField, quickActionRow, statusLabel, scrollPane, buttonRow);
         root.setCenter(content);
 
-        loadAvailableApps();
-        renderAppList("");
+        refreshAvailableAppsAndRender();
         updateStatusLabel();
 
         searchField.textProperty().addListener((obs, oldValue, newValue) -> renderAppList(newValue));
 
         setScene(new Scene(root, 520, 520));
+        setOnShown(event -> startAutoRefresh());
+        setOnHidden(event -> stopAutoRefresh());
     }
 
     public boolean isConfirmed() {
@@ -146,8 +157,9 @@ public class AppSelectionModal extends Stage {
 
     private void loadAvailableApps() {
         Set<String> appSet = new HashSet<>(COMMON_DISTRACTIONS.keySet());
-        AppMonitor monitor = AppMonitor.createForCurrentOS();
-        for (ProcessInfo process : monitor.getRunningProcesses(true)) {
+        // Keep already-selected apps visible even when currently not running.
+        appSet.addAll(selectedApps);
+        for (ProcessInfo process : appMonitor.getRunningProcesses(true)) {
             String display = process.getDisplayName();
             if (display != null && !display.isBlank()) {
                 appSet.add(display.trim());
@@ -160,6 +172,25 @@ public class AppSelectionModal extends Stage {
                         .thenComparing(String::compareToIgnoreCase))
                 .collect(Collectors.toList());
         allApps.setAll(sortedApps);
+    }
+
+    private void refreshAvailableAppsAndRender() {
+        loadAvailableApps();
+        renderAppList(searchField.getText());
+    }
+
+    private void startAutoRefresh() {
+        stopAutoRefresh();
+        refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> refreshAvailableAppsAndRender()));
+        refreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        refreshTimeline.play();
+    }
+
+    private void stopAutoRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+            refreshTimeline = null;
+        }
     }
 
     private void renderAppList(String query) {
