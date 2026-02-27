@@ -3,6 +3,7 @@ package focus.kudafocus.ui;
 import focus.kudafocus.core.FocusSession;
 import focus.kudafocus.core.Timer;
 import focus.kudafocus.monitoring.AppMonitor;
+import focus.kudafocus.monitoring.ChromeWebsiteMonitor;
 import focus.kudafocus.ui.components.CircularProgressRing;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -15,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 import java.util.List;
+import java.util.Arrays;
 
 /**
  * Active session panel - displays running focus session with countdown.
@@ -124,6 +126,7 @@ public class ActiveSessionPanel extends BasePanel {
      * App monitor for detecting violations
      */
     private AppMonitor appMonitor;
+    private ChromeWebsiteMonitor websiteMonitor;
 
     /**
      * Callback for events
@@ -134,6 +137,12 @@ public class ActiveSessionPanel extends BasePanel {
      * Whether session is paused
      */
     private boolean paused = false;
+    private static final int DISTRACTION_CHECK_INTERVAL_SECONDS = 5;
+    private static final int WEBSITE_OVERLAY_RETRIGGER_SECONDS = 2;
+    private static final List<String> BLOCKED_WEBSITE_DOMAINS = Arrays.asList(
+            "youtube.com", "instagram.com", "reddit.com", "x.com", "tiktok.com", "netflix.com", "twitch.tv"
+    );
+    private int lastWebsiteOverlayTriggerSecond = -WEBSITE_OVERLAY_RETRIGGER_SECONDS;
 
     // ===== CONSTRUCTOR =====
 
@@ -149,6 +158,7 @@ public class ActiveSessionPanel extends BasePanel {
 
         // Create app monitor for violation detection
         this.appMonitor = AppMonitor.createForCurrentOS();
+        this.websiteMonitor = new ChromeWebsiteMonitor();
 
         createComponents();
         layoutComponents();
@@ -384,9 +394,37 @@ public class ActiveSessionPanel extends BasePanel {
         }
 
         // Check every few seconds (not every tick)
-        if (timer.getElapsedSeconds() % 2 != 0) {
-            return; // Only check every 2 seconds
+        if (timer.getElapsedSeconds() % DISTRACTION_CHECK_INTERVAL_SECONDS != 0) {
+            return;
         }
+
+        // Chrome-only website check (frontmost app + active tab URL)
+        String matchedDomain = websiteMonitor.detectDistractingDomain(BLOCKED_WEBSITE_DOMAINS);
+        if (matchedDomain != null) {
+            String violationName = "Website: " + matchedDomain;
+            focusSession.startViolation(violationName);
+            focusSession.addViolationDuration(DISTRACTION_CHECK_INTERVAL_SECONDS);
+
+            int elapsed = timer.getElapsedSeconds();
+            if (elapsed - lastWebsiteOverlayTriggerSecond >= WEBSITE_OVERLAY_RETRIGGER_SECONDS) {
+                lastWebsiteOverlayTriggerSecond = elapsed;
+                if (callback != null) {
+                    callback.onViolationDetected(violationName);
+                }
+            }
+            return;
+        }
+
+        // End an active website violation when blocked domain no longer detected.
+        if (focusSession.hasActiveViolation()) {
+            String activeViolationName = focusSession.getCurrentViolation().getAppName();
+            if (activeViolationName != null && activeViolationName.startsWith("Website: ")) {
+                focusSession.endCurrentViolation();
+            }
+        }
+
+        // Reset cadence so next website violation shows immediately.
+        lastWebsiteOverlayTriggerSecond = timer.getElapsedSeconds() - WEBSITE_OVERLAY_RETRIGGER_SECONDS;
 
         // Get blocked apps
         List<String> blockedApps = focusSession.getBlockedApps();
