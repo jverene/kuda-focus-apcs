@@ -2,8 +2,8 @@ package focus.kudafocus.ui;
 
 import focus.kudafocus.core.FocusSession;
 import focus.kudafocus.core.Timer;
-import focus.kudafocus.monitoring.AppMonitor;
 import focus.kudafocus.monitoring.ChromeWebsiteMonitor;
+import focus.kudafocus.monitoring.ForegroundAppMonitor;
 import focus.kudafocus.ui.components.CircularProgressRing;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -17,6 +17,7 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.List;
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Active session panel - displays running focus session with countdown.
@@ -122,11 +123,8 @@ public class ActiveSessionPanel extends BasePanel {
      */
     private Timer timer;
 
-    /**
-     * App monitor for detecting violations
-     */
-    private AppMonitor appMonitor;
     private ChromeWebsiteMonitor websiteMonitor;
+    private ForegroundAppMonitor foregroundAppMonitor;
 
     /**
      * Callback for events
@@ -137,12 +135,14 @@ public class ActiveSessionPanel extends BasePanel {
      * Whether session is paused
      */
     private boolean paused = false;
-    private static final int DISTRACTION_CHECK_INTERVAL_SECONDS = 5;
+    private static final int WEBSITE_CHECK_INTERVAL_SECONDS = 5;
     private static final int WEBSITE_OVERLAY_RETRIGGER_SECONDS = 2;
+    private static final int APP_OVERLAY_RETRIGGER_SECONDS = 2;
     private static final List<String> BLOCKED_WEBSITE_DOMAINS = Arrays.asList(
             "youtube.com", "instagram.com", "reddit.com", "x.com", "tiktok.com", "netflix.com", "twitch.tv"
     );
     private int lastWebsiteOverlayTriggerSecond = -WEBSITE_OVERLAY_RETRIGGER_SECONDS;
+    private int lastAppOverlayTriggerSecond = -APP_OVERLAY_RETRIGGER_SECONDS;
 
     // ===== CONSTRUCTOR =====
 
@@ -156,9 +156,8 @@ public class ActiveSessionPanel extends BasePanel {
 
         this.focusSession = focusSession;
 
-        // Create app monitor for violation detection
-        this.appMonitor = AppMonitor.createForCurrentOS();
         this.websiteMonitor = new ChromeWebsiteMonitor();
+        this.foregroundAppMonitor = new ForegroundAppMonitor();
 
         createComponents();
         layoutComponents();
@@ -393,65 +392,120 @@ public class ActiveSessionPanel extends BasePanel {
             return;
         }
 
-        // Check every few seconds (not every tick)
-        if (timer.getElapsedSeconds() % DISTRACTION_CHECK_INTERVAL_SECONDS != 0) {
-            return;
-        }
+        int elapsed = timer.getElapsedSeconds();
+        String frontmostApp = foregroundAppMonitor.getFrontmostApplication();
+        boolean websiteCheckDue = elapsed % WEBSITE_CHECK_INTERVAL_SECONDS == 0;
+        boolean websiteMatched = false;
+        boolean appMatched = false;
 
-        // Chrome-only website check (frontmost app + active tab URL)
-        String matchedDomain = websiteMonitor.detectDistractingDomain(BLOCKED_WEBSITE_DOMAINS);
-        if (matchedDomain != null) {
-            String violationName = "Website: " + matchedDomain;
-            focusSession.startViolation(violationName);
-            focusSession.addViolationDuration(DISTRACTION_CHECK_INTERVAL_SECONDS);
+        // Chrome-only website check on configured cadence.
+        if (websiteCheckDue) {
+            String matchedDomain = websiteMonitor.detectDistractingDomain(BLOCKED_WEBSITE_DOMAINS);
+            if (matchedDomain != null) {
+                websiteMatched = true;
+                String violationName = "Website: " + matchedDomain;
+                startViolationIfChanged(violationName);
+                focusSession.addViolationDuration(WEBSITE_CHECK_INTERVAL_SECONDS);
 
-            int elapsed = timer.getElapsedSeconds();
-            if (elapsed - lastWebsiteOverlayTriggerSecond >= WEBSITE_OVERLAY_RETRIGGER_SECONDS) {
-                lastWebsiteOverlayTriggerSecond = elapsed;
-                if (callback != null) {
-                    callback.onViolationDetected(violationName);
+                if (elapsed - lastWebsiteOverlayTriggerSecond >= WEBSITE_OVERLAY_RETRIGGER_SECONDS) {
+                    lastWebsiteOverlayTriggerSecond = elapsed;
+                    if (callback != null) {
+                        callback.onViolationDetected(violationName);
+                    }
                 }
             }
+        }
+
+        // Topmost blocked app check every timer tick (more responsive).
+        List<String> blockedApps = focusSession.getBlockedApps();
+        if (!blockedApps.isEmpty()) {
+            String matchedBlockedApp = matchFrontmostBlockedApp(frontmostApp, blockedApps);
+            if (matchedBlockedApp != null) {
+                appMatched = true;
+                startViolationIfChanged(matchedBlockedApp);
+                focusSession.addViolationDuration(1);
+
+                if (elapsed - lastAppOverlayTriggerSecond >= APP_OVERLAY_RETRIGGER_SECONDS) {
+                    lastAppOverlayTriggerSecond = elapsed;
+                    if (callback != null) {
+                        callback.onViolationDetected(matchedBlockedApp);
+                    }
+                }
+            }
+        }
+
+        // End violation when nothing relevant is currently topmost.
+        if (!websiteMatched && !appMatched) {
+            // If website check is not due, keep an active website violation until
+            // the next website check confirms it's gone.
+            if (focusSession.hasActiveViolation()) {
+                String activeName = focusSession.getCurrentViolation().getAppName();
+                boolean activeIsWebsite = activeName != null && activeName.startsWith("Website: ");
+                if (!activeIsWebsite || websiteCheckDue) {
+                    endActiveViolationIfAny();
+                }
+            }
+        }
+    }
+
+    private void startViolationIfChanged(String violationName) {
+        if (!focusSession.hasActiveViolation()) {
+            focusSession.startViolation(violationName);
+            resetOverlayCadenceFor(violationName);
             return;
         }
 
-        // End an active website violation when blocked domain no longer detected.
-        if (focusSession.hasActiveViolation()) {
-            String activeViolationName = focusSession.getCurrentViolation().getAppName();
-            if (activeViolationName != null && activeViolationName.startsWith("Website: ")) {
-                focusSession.endCurrentViolation();
-            }
+        String activeViolationName = focusSession.getCurrentViolation().getAppName();
+        if (activeViolationName == null || !activeViolationName.equals(violationName)) {
+            focusSession.startViolation(violationName);
+            resetOverlayCadenceFor(violationName);
         }
+    }
 
-        // Reset cadence so next website violation shows immediately.
+    private void endActiveViolationIfAny() {
+        if (!focusSession.hasActiveViolation()) {
+            return;
+        }
+        focusSession.endCurrentViolation();
         lastWebsiteOverlayTriggerSecond = timer.getElapsedSeconds() - WEBSITE_OVERLAY_RETRIGGER_SECONDS;
+        lastAppOverlayTriggerSecond = timer.getElapsedSeconds() - APP_OVERLAY_RETRIGGER_SECONDS;
+    }
 
-        // Get blocked apps
-        List<String> blockedApps = focusSession.getBlockedApps();
-        if (blockedApps.isEmpty()) {
-            return; // No apps to block
-        }
-
-        // Check for violations
-        List<String> violations = appMonitor.checkForViolations(blockedApps);
-
-        if (!violations.isEmpty()) {
-            // Violation detected
-            String appName = violations.get(0); // First violation
-
-            // Record in session
-            focusSession.startViolation(appName);
-
-            // Notify callback to show overlay
-            if (callback != null) {
-                callback.onViolationDetected(appName);
-            }
+    private void resetOverlayCadenceFor(String violationName) {
+        int elapsed = timer.getElapsedSeconds();
+        if (violationName != null && violationName.startsWith("Website: ")) {
+            lastWebsiteOverlayTriggerSecond = elapsed - WEBSITE_OVERLAY_RETRIGGER_SECONDS;
         } else {
-            // No violations - end current violation if any
-            if (focusSession.hasActiveViolation()) {
-                focusSession.endCurrentViolation();
+            lastAppOverlayTriggerSecond = elapsed - APP_OVERLAY_RETRIGGER_SECONDS;
+        }
+    }
+
+    private String matchFrontmostBlockedApp(String frontmostApp, List<String> blockedApps) {
+        if (frontmostApp == null || frontmostApp.isBlank()) {
+            return null;
+        }
+        String normalizedFrontmost = normalizeAppName(frontmostApp);
+
+        for (String blockedApp : blockedApps) {
+            String normalizedBlocked = normalizeAppName(blockedApp);
+            if (normalizedBlocked.isEmpty()) {
+                continue;
+            }
+            if (normalizedFrontmost.contains(normalizedBlocked) || normalizedBlocked.contains(normalizedFrontmost)) {
+                return blockedApp;
             }
         }
+        return null;
+    }
+
+    private String normalizeAppName(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.toLowerCase(Locale.ROOT)
+                .replace(".app", "")
+                .replace(".exe", "")
+                .trim();
     }
 
     // ===== PUBLIC METHODS =====

@@ -1,6 +1,8 @@
 package focus.kudafocus;
 
 import focus.kudafocus.core.FocusSession;
+import focus.kudafocus.data.models.UserPreferences;
+import focus.kudafocus.data.storage.PreferencesStore;
 import focus.kudafocus.ui.ActiveSessionPanel;
 import focus.kudafocus.ui.AppSelectionModal;
 import focus.kudafocus.ui.CircularTimerPanel;
@@ -65,6 +67,8 @@ public class Main extends Application {
      * Current active session (if any)
      */
     private FocusSession currentSession;
+    private PreferencesStore preferencesStore;
+    private UserPreferences userPreferences;
 
     /**
      * Application entry point
@@ -83,6 +87,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        this.preferencesStore = new PreferencesStore();
+        this.userPreferences = preferencesStore.load();
 
         // Set up window
         primaryStage.setTitle("KUDA FOCUS - Minimalist Focus Timer");
@@ -151,6 +157,7 @@ public class Main extends Application {
 
         // Set initial streak (TODO: load from data store in Phase 4)
         timerPanel.setStreak(0);
+        timerPanel.setSelectedApps(userPreferences.getLastSelectedApps());
 
         // Create scene if not exists, or update root
         if (scene == null) {
@@ -284,8 +291,11 @@ public class Main extends Application {
         modal.showAndWait();
 
         if (modal.isConfirmed()) {
-            timerPanel.setSelectedApps(modal.getSelectedApps());
-            System.out.println("Selected blocked apps: " + modal.getSelectedApps());
+            List<String> selectedApps = modal.getSelectedApps();
+            timerPanel.setSelectedApps(selectedApps);
+            userPreferences.setLastSelectedApps(selectedApps);
+            preferencesStore.save(userPreferences);
+            System.out.println("Selected blocked apps: " + selectedApps);
         } else {
             System.out.println("App selection canceled.");
         }
