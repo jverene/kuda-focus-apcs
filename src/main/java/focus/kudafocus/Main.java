@@ -2,6 +2,7 @@ package focus.kudafocus;
 
 import focus.kudafocus.core.FocusSession;
 import focus.kudafocus.ui.ActiveSessionPanel;
+import focus.kudafocus.ui.AppSelectionModal;
 import focus.kudafocus.ui.CircularTimerPanel;
 import focus.kudafocus.ui.DistractionOverlay;
 import focus.kudafocus.ui.SessionSummaryPanel;
@@ -273,11 +274,15 @@ public class Main extends Application {
      */
     private void handleSelectApps() {
         System.out.println("Opening app selection modal...");
-        System.out.println("TODO: Implement AppSelectionModal in Phase 3");
+        AppSelectionModal modal = new AppSelectionModal(primaryStage, timerPanel.getSelectedApps());
+        modal.showAndWait();
 
-        // For now, set some demo apps
-        java.util.List<String> demoApps = java.util.Arrays.asList("Discord", "Steam", "Instagram");
-        timerPanel.setSelectedApps(demoApps);
+        if (modal.isConfirmed()) {
+            timerPanel.setSelectedApps(modal.getSelectedApps());
+            System.out.println("Selected blocked apps: " + modal.getSelectedApps());
+        } else {
+            System.out.println("App selection canceled.");
+        }
     }
 
     /**
