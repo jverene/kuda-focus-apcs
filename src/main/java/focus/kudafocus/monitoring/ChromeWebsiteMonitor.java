@@ -16,9 +16,10 @@ public class ChromeWebsiteMonitor {
 
     /**
      * Checks if frontmost Chrome tab URL matches any blocked domain.
+     * Only detects violations when Chrome window is actively visible/in focus.
      *
      * @param blockedDomains List of blocked domains like "youtube.com"
-     * @return Matched domain, or null if no match / not applicable
+     * @return Matched domain, or null if no match / not applicable / Chrome not visible
      */
     public String detectDistractingDomain(List<String> blockedDomains) {
         String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
@@ -26,6 +27,7 @@ public class ChromeWebsiteMonitor {
             return null;
         }
 
+        // Check if Chrome is the frontmost application
         String frontmostApp = runAppleScript(
                 "tell application \"System Events\" to get name of first application process whose frontmost is true"
         );
@@ -34,6 +36,16 @@ public class ChromeWebsiteMonitor {
             return null;
         }
 
+        // Verify Chrome window is actually visible (not minimized)
+        String chromeVisible = runAppleScript(
+                "tell application \"Google Chrome\" to return (count of windows) > 0"
+        );
+        if (chromeVisible == null || !chromeVisible.equalsIgnoreCase("true")) {
+            System.out.println("[ChromeWebsiteMonitor] Chrome window not visible");
+            return null;
+        }
+
+        // Get the URL of the active tab
         String currentUrl = runAppleScript(
                 "tell application \"Google Chrome\" to get URL of active tab of front window"
         );
