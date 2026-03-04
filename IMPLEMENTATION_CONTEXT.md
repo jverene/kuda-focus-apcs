@@ -542,6 +542,38 @@ timer.start();
 
 ---
 
+## Monitoring Integration (Enhanced Phase 2)
+
+### SessionMonitor Service
+Location: `src/main/java/focus/kudafocus/monitoring/SessionMonitor.java`
+
+**Purpose**: Centralizes violation detection for apps and websites into a single service that updates the FocusSession in real-time.
+
+**Key Features**:
+- Polls all running processes using `AppMonitor.checkForViolations()` every 1 second
+- Checks Chrome active tab for blocked websites every 5 seconds  
+- Maintains violation state in FocusSession (start/end/duration tracking)
+- Enforces overlay re-trigger cadence (minimum 2 seconds between same-violation overlays)
+- Lifecycle: `start()` creates Timeline, `stop()` cancels it
+
+### Website Blocking (New)
+**User-selectable blocked websites** (no longer hardcoded):
+
+1. **Data Model**: `FocusSession` now includes `blockedWebsites` field
+   - Constructor: `FocusSession(duration, blockedApps, blockedWebsites)`
+   - Storage: `SessionRecord` and `UserPreferences.lastSelectedWebsites`
+
+2. **UI Selection**: `AppSelectionModal` extended with website input
+   - TextArea for comma-separated domains
+   - Getter: `getSelectedWebsites()`
+
+3. **Tests**: `SessionMonitorTest` with 13 test cases
+   - Violation lifecycle, duration tracking
+   - Session completion/abandonment, focus score
+   - Streak qualification, most distracting app
+
+---
+
 ## Questions to Ask Me
 
 If anything is unclear, ask me:
