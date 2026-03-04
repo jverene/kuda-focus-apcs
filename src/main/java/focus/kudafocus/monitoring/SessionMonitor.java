@@ -237,6 +237,8 @@ public class SessionMonitor {
         // Use ChromeWebsiteMonitor to check active tab
         String matchedDomain = websiteMonitor.detectDistractingDomain(blockedWebsites);
 
+        System.out.println("[SessionMonitor] Checking websites: " + blockedWebsites + " -> matched: " + matchedDomain);
+
         if (matchedDomain != null) {
             // Found violation
             String violationName = "Website: " + matchedDomain;

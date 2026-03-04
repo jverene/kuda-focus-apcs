@@ -30,6 +30,7 @@ public class ChromeWebsiteMonitor {
                 "tell application \"System Events\" to get name of first application process whose frontmost is true"
         );
         if (frontmostApp == null || !frontmostApp.equalsIgnoreCase("Google Chrome")) {
+            System.out.println("[ChromeWebsiteMonitor] Frontmost app: " + frontmostApp + ", Chrome checking skipped");
             return null;
         }
 
@@ -37,21 +38,27 @@ public class ChromeWebsiteMonitor {
                 "tell application \"Google Chrome\" to get URL of active tab of front window"
         );
         if (currentUrl == null || currentUrl.isBlank()) {
+            System.out.println("[ChromeWebsiteMonitor] Chrome URL empty or null");
             return null;
         }
 
         String host = extractHost(currentUrl);
         if (host == null) {
+            System.out.println("[ChromeWebsiteMonitor] Could not extract host from: " + currentUrl);
             return null;
         }
+
+        System.out.println("[ChromeWebsiteMonitor] Chrome active URL: " + currentUrl + " -> host: " + host);
 
         String normalizedHost = host.toLowerCase(Locale.ROOT);
         for (String domain : blockedDomains) {
             String normalizedDomain = domain.toLowerCase(Locale.ROOT);
             if (normalizedHost.equals(normalizedDomain) || normalizedHost.endsWith("." + normalizedDomain)) {
+                System.out.println("[ChromeWebsiteMonitor] MATCH! Host " + normalizedHost + " matches domain " + normalizedDomain);
                 return domain;
             }
         }
+        System.out.println("[ChromeWebsiteMonitor] No match. Host " + normalizedHost + " vs domains " + blockedDomains);
         return null;
     }
 

@@ -13,6 +13,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -158,7 +159,9 @@ public class Main extends Application {
         // Set initial streak (TODO: load from data store in Phase 4)
         timerPanel.setStreak(0);
         timerPanel.setSelectedApps(userPreferences.getLastSelectedApps());
-        timerPanel.setSelectedWebsites(userPreferences.getLastSelectedWebsites());
+        // IMPORTANT: Do NOT auto-load blocked websites from previous sessions
+        // Users should explicitly select websites for each session to avoid surprising auto-blocking
+        timerPanel.setSelectedWebsites(new ArrayList<>());
 
         // Create scene if not exists, or update root
         if (scene == null) {
@@ -272,6 +275,7 @@ public class Main extends Application {
     private void handleStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites) {
         // Create new session with both apps and websites
         int durationSeconds = durationMinutes * 60;
+        System.out.println("[Main] Starting session with apps: " + blockedApps + " and websites: " + blockedWebsites);
         currentSession = new FocusSession(durationSeconds, blockedApps, blockedWebsites);
 
         // Show active session screen
