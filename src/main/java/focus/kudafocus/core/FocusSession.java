@@ -75,6 +75,11 @@ public class FocusSession {
     private List<String> blockedApps;
 
     /**
+     * List of websites that were blocked during this session
+     */
+    private List<String> blockedWebsites;
+
+    /**
      * Current violation being tracked (if any)
      */
     private Violation currentViolation;
@@ -88,12 +93,24 @@ public class FocusSession {
      * @param blockedApps List of app names to block
      */
     public FocusSession(int plannedDurationSeconds, List<String> blockedApps) {
+        this(plannedDurationSeconds, blockedApps, new ArrayList<>());
+    }
+
+    /**
+     * Creates a new focus session with specified duration, blocked apps, and blocked websites.
+     *
+     * @param plannedDurationSeconds Duration in seconds
+     * @param blockedApps List of app names to block
+     * @param blockedWebsites List of website domains to block
+     */
+    public FocusSession(int plannedDurationSeconds, List<String> blockedApps, List<String> blockedWebsites) {
         this.sessionId = UUID.randomUUID().toString();
         this.startTime = LocalDateTime.now();
         this.plannedDuration = plannedDurationSeconds;
         this.actualDuration = 0;
         this.violations = new ArrayList<>();
         this.blockedApps = new ArrayList<>(blockedApps);
+        this.blockedWebsites = new ArrayList<>(blockedWebsites);
         this.focusScore = UIConstants.SCORE_BASE; // Start with perfect score
         this.completed = false;
         this.currentViolation = null;
@@ -105,6 +122,15 @@ public class FocusSession {
     public FocusSession(String sessionId, LocalDateTime startTime, int plannedDuration,
                         int actualDuration, List<Violation> violations, int focusScore,
                         boolean completed, List<String> blockedApps) {
+        this(sessionId, startTime, plannedDuration, actualDuration, violations, focusScore, completed, blockedApps, new ArrayList<>());
+    }
+
+    /**
+     * Creates a session from stored data with blocked websites (for deserialization)
+     */
+    public FocusSession(String sessionId, LocalDateTime startTime, int plannedDuration,
+                        int actualDuration, List<Violation> violations, int focusScore,
+                        boolean completed, List<String> blockedApps, List<String> blockedWebsites) {
         this.sessionId = sessionId;
         this.startTime = startTime;
         this.plannedDuration = plannedDuration;
@@ -113,6 +139,7 @@ public class FocusSession {
         this.focusScore = focusScore;
         this.completed = completed;
         this.blockedApps = blockedApps;
+        this.blockedWebsites = blockedWebsites;
         this.currentViolation = null;
     }
 
@@ -228,7 +255,8 @@ public class FocusSession {
             }
         }
 
-        return mostDistracting;
+        // Ensure it's not null (defensive)
+        return mostDistracting != null ? mostDistracting : "None";
     }
 
     /**
@@ -403,6 +431,15 @@ public class FocusSession {
     }
 
     /**
+     * Get list of blocked websites for this session
+     *
+     * @return Copy of blocked websites list
+     */
+    public List<String> getBlockedWebsites() {
+        return new ArrayList<>(blockedWebsites);
+    }
+
+    /**
      * Check if there's a current active violation
      *
      * @return true if currently violated
@@ -454,10 +491,14 @@ public class FocusSession {
         this.blockedApps = blockedApps;
     }
 
+    public void setBlockedWebsites(List<String> blockedWebsites) {
+        this.blockedWebsites = blockedWebsites;
+    }
+
     @Override
     public String toString() {
-        return String.format("FocusSession{id='%s', start=%s, duration=%d/%d min, score=%d, violations=%d, completed=%b}",
+        return String.format("FocusSession{id='%s', start=%s, duration=%d/%d min, score=%d, violations=%d, apps=[%s], sites=[%s], completed=%b}",
                 sessionId, startTime, actualDuration / 60, plannedDuration / 60,
-                focusScore, violations.size(), completed);
+                focusScore, violations.size(), String.join(", ", blockedApps), String.join(", ", blockedWebsites), completed);
     }
 }
