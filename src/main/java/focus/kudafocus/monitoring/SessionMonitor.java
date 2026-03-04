@@ -1,6 +1,7 @@
 package focus.kudafocus.monitoring;
 
 import focus.kudafocus.core.FocusSession;
+import focus.kudafocus.monitoring.ForegroundAppMonitor;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
@@ -67,9 +68,9 @@ public class SessionMonitor {
     private final AppMonitor appMonitor;
 
     /**
-     * Foreground app monitor
+     * Foreground application monitor (for checking which app is frontmost)
      */
-    private final ForegroundAppMonitor foregroundAppMonitor;
+    private final ForegroundAppMonitor foregroundMonitor;
 
     /**
      * Chrome website monitor
@@ -118,11 +119,25 @@ public class SessionMonitor {
      * @param callback Callback for violation events
      */
     public SessionMonitor(FocusSession session, SessionMonitorCallback callback) {
+        this(session, callback,
+             AppMonitor.createForCurrentOS(),
+             new ForegroundAppMonitor(),
+             new ChromeWebsiteMonitor());
+    }
+
+    /*
+     * Package-private constructor for testing with custom monitors.
+     */
+    SessionMonitor(FocusSession session,
+                   SessionMonitorCallback callback,
+                   AppMonitor appMonitor,
+                   ForegroundAppMonitor foregroundMonitor,
+                   ChromeWebsiteMonitor websiteMonitor) {
         this.session = session;
         this.callback = callback;
-        this.appMonitor = AppMonitor.createForCurrentOS();
-        this.foregroundAppMonitor = new ForegroundAppMonitor();
-        this.websiteMonitor = new ChromeWebsiteMonitor();
+        this.appMonitor = appMonitor;
+        this.foregroundMonitor = foregroundMonitor;
+        this.websiteMonitor = websiteMonitor;
     }
 
     // ===== LIFECYCLE METHODS =====
@@ -191,6 +206,13 @@ public class SessionMonitor {
         // If something was active, it will be ended in the check methods
     }
 
+    /*
+     * Package-private helper for unit tests to simulate a single tick
+     */
+    void tickOnce() {
+        onTimerTick();
+    }
+
     // ===== VIOLATION CHECKING =====
 
     /**
@@ -203,20 +225,31 @@ public class SessionMonitor {
             return;
         }
 
-        // Use AppMonitor to check all running processes
-        List<String> violations = appMonitor.checkForViolations(blockedApps);
+        // Determine the current frontmost application via foreground monitor
+        String frontApp = foregroundMonitor.getFrontmostApplication();
+        System.out.println("[SessionMonitor] frontmost app = " + frontApp);
 
-        if (!violations.isEmpty()) {
-            // Found violation
-            String detectedApp = violations.get(0);
-            startViolationIfChanged(detectedApp, true);
+        String matchedApp = null;
+        if (frontApp != null && !frontApp.isBlank()) {
+            String normalizedFront = frontApp.toLowerCase(Locale.ROOT);
+            for (String app : blockedApps) {
+                if (normalizedFront.contains(app.toLowerCase(Locale.ROOT))) {
+                    matchedApp = app;
+                    break;
+                }
+            }
+        }
+
+        if (matchedApp != null) {
+            // Found violation in foreground app
+            startViolationIfChanged(matchedApp, true);
             session.addViolationDuration(APP_CHECK_INTERVAL_SECONDS);
 
             // Trigger overlay if cadence allows
             if (elapsedSeconds - lastAppOverlayTriggerSecond >= OVERLAY_RETRIGGER_INTERVAL_SECONDS) {
                 lastAppOverlayTriggerSecond = elapsedSeconds;
                 if (callback != null) {
-                    callback.onViolationDetected(detectedApp);
+                    callback.onViolationDetected(matchedApp);
                 }
             }
         } else {

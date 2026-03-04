@@ -1,6 +1,9 @@
 package focus.kudafocus.monitoring;
 
 import focus.kudafocus.core.FocusSession;
+import focus.kudafocus.monitoring.AppMonitor;
+import focus.kudafocus.monitoring.ChromeWebsiteMonitor;
+import focus.kudafocus.monitoring.ForegroundAppMonitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -205,4 +208,38 @@ public class SessionMonitorTest {
 
         assertEquals(1, session.getBlockedWebsites().size(), "Original websites should not be affected");
     }
+
+    // ==== ADDITIONAL SESSIONMONITOR TESTS ====
+
+    /**
+     * Simple stub that allows controlling the reported frontmost application.
+     */
+    private static class StubForeground extends ForegroundAppMonitor {
+        private String front;
+        void setFront(String front) { this.front = front; }
+        @Override
+        public String getFrontmostApplication() { return front; }
+    }
+
+    @Test
+    public void testMonitorDetectsOnlyFrontmostApp() {
+        StubForeground fg = new StubForeground();
+        fg.setFront("Discord");
+        SessionMonitor monitor = new SessionMonitor(session, mockCallback,
+                AppMonitor.createForCurrentOS(), fg, new ChromeWebsiteMonitor());
+        monitor.tickOnce();
+        assertEquals(1, callbackInvocations.size(), "Should detect Discord when frontmost");
+        assertTrue(callbackInvocations.get(0).contains("Discord"));
+    }
+
+    @Test
+    public void testMonitorIgnoresBackgroundBlockedApp() {
+        StubForeground fg = new StubForeground();
+        fg.setFront("Messages"); // not in blocked list
+        SessionMonitor monitor = new SessionMonitor(session, mockCallback,
+                AppMonitor.createForCurrentOS(), fg, new ChromeWebsiteMonitor());
+        monitor.tickOnce();
+        assertTrue(callbackInvocations.isEmpty(), "No violation when blocked app not frontmost");
+    }
 }
+
