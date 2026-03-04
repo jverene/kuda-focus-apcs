@@ -46,8 +46,9 @@ public class CircularTimerPanel extends BasePanel {
          *
          * @param durationMinutes Selected duration in minutes
          * @param blockedApps List of app names to block
+         * @param blockedWebsites List of website domains to block
          */
-        void onStartSession(int durationMinutes, List<String> blockedApps);
+        void onStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites);
 
         /**
          * Called when user wants to select apps to block
@@ -98,6 +99,11 @@ public class CircularTimerPanel extends BasePanel {
      * List of currently selected apps to block
      */
     private List<String> selectedApps = new ArrayList<>();
+
+    /**
+     * List of currently selected websites to block
+     */
+    private List<String> selectedWebsites = new ArrayList<>();
 
     /**
      * Callback for events
@@ -240,7 +246,7 @@ public class CircularTimerPanel extends BasePanel {
 
         // Notify callback
         if (callback != null) {
-            callback.onStartSession(minutes, new ArrayList<>(selectedApps));
+            callback.onStartSession(minutes, new ArrayList<>(selectedApps), new ArrayList<>(selectedWebsites));
         }
     }
 
@@ -299,15 +305,7 @@ public class CircularTimerPanel extends BasePanel {
      */
     public void setSelectedApps(List<String> apps) {
         this.selectedApps = new ArrayList<>(apps);
-
-        // Update status label
-        if (apps.isEmpty()) {
-            appsStatusLabel.setText("No apps selected");
-            appsStatusLabel.setTextFill(getTextSecondaryColor());
-        } else {
-            appsStatusLabel.setText(String.format("%d app%s selected", apps.size(), apps.size() == 1 ? "" : "s"));
-            appsStatusLabel.setTextFill(getAccentColor());
-        }
+        updateStatusLabel();
     }
 
     /**
@@ -317,6 +315,50 @@ public class CircularTimerPanel extends BasePanel {
      */
     public List<String> getSelectedApps() {
         return new ArrayList<>(selectedApps);
+    }
+
+    /**
+     * Updates the selected websites list
+     *
+     * @param websites List of website domains
+     */
+    public void setSelectedWebsites(List<String> websites) {
+        this.selectedWebsites = new ArrayList<>(websites);
+        updateStatusLabel();
+    }
+
+    /**
+     * Gets the currently selected websites
+     *
+     * @return List of website domains
+     */
+    public List<String> getSelectedWebsites() {
+        return new ArrayList<>(selectedWebsites);
+    }
+
+    /**
+     * Updates the status label based on selected apps and websites
+     */
+    private void updateStatusLabel() {
+        String status;
+        
+        if (selectedApps.isEmpty() && selectedWebsites.isEmpty()) {
+            status = "No apps or sites selected";
+            appsStatusLabel.setTextFill(getTextSecondaryColor());
+        } else {
+            StringBuilder sb = new StringBuilder();
+            if (!selectedApps.isEmpty()) {
+                sb.append(selectedApps.size()).append(" app").append(selectedApps.size() == 1 ? "" : "s");
+            }
+            if (!selectedWebsites.isEmpty()) {
+                if (sb.length() > 0) sb.append(" | ");
+                sb.append(selectedWebsites.size()).append(" site").append(selectedWebsites.size() == 1 ? "" : "s");
+            }
+            status = sb.append(" selected").toString();
+            appsStatusLabel.setTextFill(getAccentColor());
+        }
+        
+        appsStatusLabel.setText(status);
     }
 
     /**

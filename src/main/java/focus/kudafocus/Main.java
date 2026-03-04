@@ -145,8 +145,8 @@ public class Main extends Application {
         // Set up callback for panel events
         timerPanel.setCallback(new CircularTimerPanel.CircularTimerCallback() {
             @Override
-            public void onStartSession(int durationMinutes, List<String> blockedApps) {
-                handleStartSession(durationMinutes, blockedApps);
+            public void onStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites) {
+                handleStartSession(durationMinutes, blockedApps, blockedWebsites);
             }
 
             @Override
@@ -158,6 +158,7 @@ public class Main extends Application {
         // Set initial streak (TODO: load from data store in Phase 4)
         timerPanel.setStreak(0);
         timerPanel.setSelectedApps(userPreferences.getLastSelectedApps());
+        timerPanel.setSelectedWebsites(userPreferences.getLastSelectedWebsites());
 
         // Create scene if not exists, or update root
         if (scene == null) {
@@ -273,31 +274,42 @@ public class Main extends Application {
     /**
      * Handles START button click from home screen
      */
-    private void handleStartSession(int durationMinutes, List<String> blockedApps) {
-        // Create new session
+    private void handleStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites) {
+        // Create new session with both apps and websites
         int durationSeconds = durationMinutes * 60;
-        currentSession = new FocusSession(durationSeconds, blockedApps);
+        currentSession = new FocusSession(durationSeconds, blockedApps, blockedWebsites);
 
         // Show active session screen
         showActiveSession(currentSession);
     }
 
     /**
-     * Handles app selection request
+     * Handles app and website selection request
      */
     private void handleSelectApps() {
-        System.out.println("Opening app selection modal...");
-        AppSelectionModal modal = new AppSelectionModal(primaryStage, timerPanel.getSelectedApps());
+        System.out.println("Opening app & website selection modal...");
+        AppSelectionModal modal = new AppSelectionModal(
+                primaryStage,
+                timerPanel.getSelectedApps(),
+                timerPanel.getSelectedWebsites()
+        );
         modal.showAndWait();
 
         if (modal.isConfirmed()) {
             List<String> selectedApps = modal.getSelectedApps();
+            List<String> selectedWebsites = modal.getSelectedWebsites();
+            
             timerPanel.setSelectedApps(selectedApps);
+            timerPanel.setSelectedWebsites(selectedWebsites);
+            
             userPreferences.setLastSelectedApps(selectedApps);
+            userPreferences.setLastSelectedWebsites(selectedWebsites);
             preferencesStore.save(userPreferences);
+            
             System.out.println("Selected blocked apps: " + selectedApps);
+            System.out.println("Selected blocked sites: " + selectedWebsites);
         } else {
-            System.out.println("App selection canceled.");
+            System.out.println("App & website selection canceled.");
         }
     }
 
