@@ -19,6 +19,7 @@ public class SessionRecord {
     private int focusScore;
     private boolean completed;
     private List<String> blockedApps;
+    private List<String> blockedWebsites;
     private List<Violation> violations;
 
     // ===== CONSTRUCTORS =====
@@ -35,6 +36,15 @@ public class SessionRecord {
     public SessionRecord(String id, String date, LocalDateTime startTime, int plannedDuration,
                          int actualDuration, int focusScore, boolean completed,
                          List<String> blockedApps, List<Violation> violations) {
+        this(id, date, startTime, plannedDuration, actualDuration, focusScore, completed, blockedApps, new ArrayList<>(), violations);
+    }
+
+    /**
+     * Creates a session record with blocked websites
+     */
+    public SessionRecord(String id, String date, LocalDateTime startTime, int plannedDuration,
+                         int actualDuration, int focusScore, boolean completed,
+                         List<String> blockedApps, List<String> blockedWebsites, List<Violation> violations) {
         this.id = id;
         this.date = date;
         this.startTime = startTime;
@@ -43,6 +53,7 @@ public class SessionRecord {
         this.focusScore = focusScore;
         this.completed = completed;
         this.blockedApps = blockedApps;
+        this.blockedWebsites = blockedWebsites;
         this.violations = violations;
     }
 
@@ -110,6 +121,14 @@ public class SessionRecord {
 
     public void setBlockedApps(List<String> blockedApps) {
         this.blockedApps = blockedApps;
+    }
+
+    public List<String> getBlockedWebsites() {
+        return blockedWebsites;
+    }
+
+    public void setBlockedWebsites(List<String> blockedWebsites) {
+        this.blockedWebsites = blockedWebsites;
     }
 
     public List<Violation> getViolations() {

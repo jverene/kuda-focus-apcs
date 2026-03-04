@@ -22,6 +22,11 @@ public class UserPreferences {
     private List<String> lastSelectedApps;
 
     /**
+     * Last selected websites to block
+     */
+    private List<String> lastSelectedWebsites;
+
+    /**
      * App registry mapping app names to their metadata
      */
     private Map<String, AppEntry> appRegistry;
@@ -34,6 +39,7 @@ public class UserPreferences {
     public UserPreferences() {
         this.defaultDuration = 1500;  // 25 minutes (Pomodoro)
         this.lastSelectedApps = new ArrayList<>();
+        this.lastSelectedWebsites = new ArrayList<>();
         this.appRegistry = new HashMap<>();
         initializeDefaultApps();
     }
@@ -80,6 +86,14 @@ public class UserPreferences {
 
     public void setLastSelectedApps(List<String> lastSelectedApps) {
         this.lastSelectedApps = lastSelectedApps;
+    }
+
+    public List<String> getLastSelectedWebsites() {
+        return lastSelectedWebsites;
+    }
+
+    public void setLastSelectedWebsites(List<String> lastSelectedWebsites) {
+        this.lastSelectedWebsites = lastSelectedWebsites;
     }
 
     public Map<String, AppEntry> getAppRegistry() {
