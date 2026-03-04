@@ -264,5 +264,24 @@ public class SessionMonitorTest {
         assertEquals(1, callbackInvocations.size(), "Chrome alias should match Google Chrome frontmost app");
         assertTrue(callbackInvocations.get(0).contains("Chrome"));
     }
+
+    @Test
+    public void testOverlayRetriggerCadenceIsFifteenSeconds() {
+        StubForeground fg = new StubForeground();
+        fg.setFront("Discord");
+        SessionMonitor monitor = new SessionMonitor(session, mockCallback,
+                AppMonitor.createForCurrentOS(), fg, new ChromeWebsiteMonitor());
+
+        monitor.tickOnce();
+        assertEquals(1, callbackInvocations.size(), "Initial violation should trigger overlay callback");
+
+        for (int i = 0; i < 14; i++) {
+            monitor.tickOnce();
+        }
+        assertEquals(1, callbackInvocations.size(), "Overlay should not retrigger before 15 seconds");
+
+        monitor.tickOnce();
+        assertEquals(2, callbackInvocations.size(), "Overlay should retrigger after 15 seconds");
+    }
 }
 
