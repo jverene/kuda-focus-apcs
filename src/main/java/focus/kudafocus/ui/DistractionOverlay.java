@@ -52,12 +52,6 @@ public class DistractionOverlay {
          * Called when user dismisses the overlay
          */
         void onDismissed();
-
-        /**
-         * Called when overlay closes and app is still running
-         * (will trigger reappearance after delay)
-         */
-        void onAppStillRunning();
     }
 
     // ===== COMPONENTS =====
@@ -204,7 +198,7 @@ public class DistractionOverlay {
         );
 
         // Warning label
-        warningLabel = new Label("Close the app to continue focused work\nThis overlay will reappear in 15 seconds");
+        warningLabel = new Label("Close the app to continue focused work\nThis overlay will reappear in 2 seconds");
         warningLabel.setFont(UIConstants.getSmallFont());
         warningLabel.setTextFill(UIConstants.TEXT_MUTED);
         warningLabel.setTextAlignment(TextAlignment.CENTER);
