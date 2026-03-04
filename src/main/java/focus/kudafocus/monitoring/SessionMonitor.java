@@ -220,13 +220,14 @@ public class SessionMonitor {
      */
     private void checkAppViolations() {
         List<String> blockedApps = session.getBlockedApps();
+        String frontApp = foregroundMonitor.getFrontmostApplication();
+        System.out.println("[DEBUG] elapsed=" + elapsedSeconds + " frontmost=" + frontApp + " blocked=" + blockedApps);
         if (blockedApps.isEmpty()) {
             clearAppViolationIfActive();
             return;
         }
 
         // Determine the current frontmost application via foreground monitor
-        String frontApp = foregroundMonitor.getFrontmostApplication();
         System.out.println("[SessionMonitor] frontmost app = " + frontApp);
 
         String matchedApp = null;
