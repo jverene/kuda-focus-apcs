@@ -198,7 +198,8 @@ public class DistractionOverlay {
         );
 
         // Warning label
-        warningLabel = new Label("Close the app to continue focused work\nThis overlay will reappear in 2 seconds");
+        warningLabel = new Label("Close the app to continue focused work\nThis overlay will reappear in "
+                + UIConstants.OVERLAY_REAPPEAR_SECONDS + " seconds");
         warningLabel.setFont(UIConstants.getSmallFont());
         warningLabel.setTextFill(UIConstants.TEXT_MUTED);
         warningLabel.setTextAlignment(TextAlignment.CENTER);

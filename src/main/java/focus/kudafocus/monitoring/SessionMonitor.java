@@ -2,6 +2,7 @@ package focus.kudafocus.monitoring;
 
 import focus.kudafocus.core.FocusSession;
 import focus.kudafocus.monitoring.ForegroundAppMonitor;
+import focus.kudafocus.ui.UIConstants;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
@@ -65,7 +66,7 @@ public class SessionMonitor {
     /**
      * Minimum gap before re-triggering overlay for same violation
      */
-    private static final int OVERLAY_RETRIGGER_INTERVAL_SECONDS = 2;
+    private static final int OVERLAY_RETRIGGER_INTERVAL_SECONDS = UIConstants.OVERLAY_REAPPEAR_SECONDS;
 
     // ===== MONITORS =====
 
