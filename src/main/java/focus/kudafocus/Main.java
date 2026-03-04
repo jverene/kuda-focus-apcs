@@ -258,11 +258,6 @@ public class Main extends Application {
             public void onDismissed() {
                 System.out.println("Overlay dismissed by user");
             }
-
-            @Override
-            public void onAppStillRunning() {
-                System.out.println("App still running - overlay will reappear");
-            }
         });
 
         // Show overlay
