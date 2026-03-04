@@ -13,12 +13,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.TextArea;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -35,7 +37,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Modal dialog for selecting blocked apps.
+ * Modal dialog for selecting blocked apps and websites.
+ *
+ * Allows users to:
+ * - Select from running processes and common distracting apps
+ * - Optionally input blocked websites (comma-separated domains)
+ * - View status of selections
+ * - Auto-refresh running processes while modal is open
  */
 public class AppSelectionModal extends Stage {
 
@@ -47,22 +55,33 @@ public class AppSelectionModal extends Stage {
     private final VBox appListContainer;
     private final Label statusLabel;
     private final TextField searchField;
+    private final TextArea websitesTextArea;
     private Timeline refreshTimeline;
 
     private boolean confirmed;
 
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps) {
+        this(owner, initiallySelectedApps, new ArrayList<>());
+    }
+
+    public AppSelectionModal(Window owner, List<String> initiallySelectedApps, List<String> initiallySelectedWebsites) {
         this.appMonitor = AppMonitor.createForCurrentOS();
         this.selectedApps = new HashSet<>(initiallySelectedApps);
         this.allApps = FXCollections.observableArrayList();
         this.appListContainer = new VBox(UIConstants.SPACING_SM);
         this.statusLabel = new Label();
         this.searchField = new TextField();
+        this.websitesTextArea = new TextArea();
         this.confirmed = false;
+
+        // Initialize websites text area with initial values
+        if (initiallySelectedWebsites != null && !initiallySelectedWebsites.isEmpty()) {
+            websitesTextArea.setText(String.join(", ", initiallySelectedWebsites));
+        }
 
         initOwner(owner);
         initModality(Modality.APPLICATION_MODAL);
-        setTitle("Select Apps to Block");
+        setTitle("Select Apps & Websites to Block");
         setResizable(false);
 
         BorderPane root = new BorderPane();
@@ -72,9 +91,14 @@ public class AppSelectionModal extends Stage {
         VBox content = new VBox(UIConstants.SPACING_MD);
         content.setAlignment(Pos.TOP_CENTER);
 
-        Label titleLabel = new Label("Select apps to block");
+        Label titleLabel = new Label("Select apps and websites to block");
         titleLabel.setFont(UIConstants.getHeadingFont());
         titleLabel.setTextFill(UIConstants.TEXT_PRIMARY);
+
+        // Apps section
+        Label appsLabel = new Label("Applications:");
+        appsLabel.setFont(UIConstants.getBodyFont());
+        appsLabel.setTextFill(UIConstants.TEXT_PRIMARY);
 
         searchField.setPromptText("Search running apps...");
         searchField.setFont(UIConstants.getBodyFont());
@@ -89,7 +113,7 @@ public class AppSelectionModal extends Stage {
 
         ScrollPane scrollPane = new ScrollPane(appListContainer);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefViewportHeight(320);
+        scrollPane.setPrefViewportHeight(200);
         scrollPane.setStyle("-fx-background: " + toRGBCode(UIConstants.BACKGROUND_PRIMARY) + ";");
 
         HBox quickActionRow = new HBox(UIConstants.SPACING_SM);
@@ -115,6 +139,21 @@ public class AppSelectionModal extends Stage {
         refreshButton.setOnAction(event -> refreshAvailableAppsAndRender());
         quickActionRow.getChildren().addAll(selectAllDistractingButton, clearAllButton, refreshButton);
 
+        // Websites section
+        Label sitesLabel = new Label("Websites (comma-separated):");
+        sitesLabel.setFont(UIConstants.getBodyFont());
+        sitesLabel.setTextFill(UIConstants.TEXT_PRIMARY);
+
+        websitesTextArea.setPromptText("e.g., youtube.com, instagram.com, reddit.com");
+        websitesTextArea.setFont(UIConstants.getSmallFont());
+        websitesTextArea.setWrapText(true);
+        websitesTextArea.setPrefRowCount(3);
+        websitesTextArea.setStyle(
+                "-fx-control-inner-background: " + toRGBCode(UIConstants.BACKGROUND_SECONDARY) + ";" +
+                        "-fx-text-fill: " + toRGBCode(UIConstants.TEXT_PRIMARY) + ";" +
+                        "-fx-font-family: monospace;"
+        );
+
         HBox buttonRow = new HBox(UIConstants.SPACING_MD);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
 
@@ -132,7 +171,19 @@ public class AppSelectionModal extends Stage {
         });
 
         buttonRow.getChildren().addAll(cancelButton, confirmButton);
-        content.getChildren().addAll(titleLabel, searchField, quickActionRow, statusLabel, scrollPane, buttonRow);
+
+        content.getChildren().addAll(
+                titleLabel,
+                appsLabel,
+                searchField,
+                quickActionRow,
+                statusLabel,
+                scrollPane,
+                new Separator(),
+                sitesLabel,
+                websitesTextArea
+        );
+        content.getChildren().addAll(buttonRow);
         root.setCenter(content);
 
         refreshAvailableAppsAndRender();
@@ -140,7 +191,7 @@ public class AppSelectionModal extends Stage {
 
         searchField.textProperty().addListener((obs, oldValue, newValue) -> renderAppList(newValue));
 
-        setScene(new Scene(root, 520, 520));
+        setScene(new Scene(root, 580, 700));
         setOnShown(event -> startAutoRefresh());
         setOnHidden(event -> stopAutoRefresh());
     }
@@ -152,6 +203,25 @@ public class AppSelectionModal extends Stage {
     public List<String> getSelectedApps() {
         return selectedApps.stream()
                 .sorted(String::compareToIgnoreCase)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets the list of selected blocked websites
+     *
+     * @return List of website domains (parsed from text area)
+     */
+    public List<String> getSelectedWebsites() {
+        String text = websitesTextArea.getText().trim();
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Parse comma-separated domains and normalize them
+        return Arrays.stream(text.split(","))
+                .map(String::trim)
+                .filter(domain -> !domain.isEmpty())
+                .map(domain -> domain.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toList());
     }
 
@@ -245,10 +315,17 @@ public class AppSelectionModal extends Stage {
     }
 
     private void updateStatusLabel() {
-        int count = selectedApps.size();
-        statusLabel.setText(count == 0
-                ? "No apps selected"
-                : String.format("%d app%s selected", count, count == 1 ? "" : "s"));
+        int appCount = selectedApps.size();
+        List<String> websites = getSelectedWebsites();
+        int siteCount = websites.size();
+
+        // Build status message
+        String appStatus = appCount == 0 ? "No apps" :
+                String.format("%d app%s", appCount, appCount == 1 ? "" : "s");
+        String siteStatus = siteCount == 0 ? "No sites" :
+                String.format("%d site%s", siteCount, siteCount == 1 ? "" : "s");
+
+        statusLabel.setText(appStatus + " | " + siteStatus + " selected");
     }
 
     private String getCategory(String appName) {
