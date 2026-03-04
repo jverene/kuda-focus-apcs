@@ -8,6 +8,7 @@ import javafx.util.Duration;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Monitors app and website usage during an active focus session.
@@ -25,6 +26,12 @@ import java.util.Locale;
  * allowing the session to be the source of truth for monitoring state.
  */
 public class SessionMonitor {
+    private static final Map<String, String> APP_NAME_ALIASES = Map.ofEntries(
+            Map.entry("google chrome", "chrome"),
+            Map.entry("microsoft edge", "edge"),
+            Map.entry("visual studio code", "vs code"),
+            Map.entry("twitter", "x")
+    );
 
     /**
      * Callback interface for monitoring events
@@ -230,16 +237,7 @@ public class SessionMonitor {
         // Determine the current frontmost application via foreground monitor
         System.out.println("[SessionMonitor] frontmost app = " + frontApp);
 
-        String matchedApp = null;
-        if (frontApp != null && !frontApp.isBlank()) {
-            String normalizedFront = frontApp.toLowerCase(Locale.ROOT);
-            for (String app : blockedApps) {
-                if (normalizedFront.contains(app.toLowerCase(Locale.ROOT))) {
-                    matchedApp = app;
-                    break;
-                }
-            }
-        }
+        String matchedApp = matchFrontmostBlockedApp(frontApp, blockedApps);
 
         if (matchedApp != null) {
             // Found violation in foreground app
@@ -357,6 +355,35 @@ public class SessionMonitor {
             // Reset cadence
             lastWebsiteOverlayTriggerSecond = elapsedSeconds - OVERLAY_RETRIGGER_INTERVAL_SECONDS;
         }
+    }
+
+    private String matchFrontmostBlockedApp(String frontApp, List<String> blockedApps) {
+        if (frontApp == null || frontApp.isBlank()) {
+            return null;
+        }
+
+        String normalizedFront = normalizeAppName(frontApp);
+        for (String blockedApp : blockedApps) {
+            String normalizedBlocked = normalizeAppName(blockedApp);
+            if (normalizedFront.equals(normalizedBlocked)) {
+                return blockedApp;
+            }
+        }
+        return null;
+    }
+
+    private String normalizeAppName(String appName) {
+        if (appName == null) {
+            return "";
+        }
+        String normalized = appName.trim()
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", " ")
+                .trim();
+        if (normalized.isEmpty()) {
+            return "";
+        }
+        return APP_NAME_ALIASES.getOrDefault(normalized, normalized);
     }
 
     // ===== GETTERS =====

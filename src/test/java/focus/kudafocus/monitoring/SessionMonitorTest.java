@@ -241,5 +241,28 @@ public class SessionMonitorTest {
         monitor.tickOnce();
         assertTrue(callbackInvocations.isEmpty(), "No violation when blocked app not frontmost");
     }
+
+    @Test
+    public void testSingleCharacterBlockedAppDoesNotMatchSubstring() {
+        FocusSession xSession = new FocusSession(3600, Arrays.asList("X"), new ArrayList<>());
+        StubForeground fg = new StubForeground();
+        fg.setFront("Firefox");
+        SessionMonitor monitor = new SessionMonitor(xSession, mockCallback,
+                AppMonitor.createForCurrentOS(), fg, new ChromeWebsiteMonitor());
+        monitor.tickOnce();
+        assertTrue(callbackInvocations.isEmpty(), "Blocked app X should not match Firefox by substring");
+    }
+
+    @Test
+    public void testAliasNormalizationMatchesDisplayAndSystemName() {
+        FocusSession chromeSession = new FocusSession(3600, Arrays.asList("Chrome"), new ArrayList<>());
+        StubForeground fg = new StubForeground();
+        fg.setFront("Google Chrome");
+        SessionMonitor monitor = new SessionMonitor(chromeSession, mockCallback,
+                AppMonitor.createForCurrentOS(), fg, new ChromeWebsiteMonitor());
+        monitor.tickOnce();
+        assertEquals(1, callbackInvocations.size(), "Chrome alias should match Google Chrome frontmost app");
+        assertTrue(callbackInvocations.get(0).contains("Chrome"));
+    }
 }
 
