@@ -2,8 +2,7 @@ package focus.kudafocus.ui;
 
 import focus.kudafocus.core.FocusSession;
 import focus.kudafocus.core.Timer;
-import focus.kudafocus.monitoring.ChromeWebsiteMonitor;
-import focus.kudafocus.monitoring.ForegroundAppMonitor;
+import focus.kudafocus.monitoring.SessionMonitor;
 import focus.kudafocus.ui.components.CircularProgressRing;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -15,9 +14,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
-import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Active session panel - displays running focus session with countdown.
@@ -34,14 +33,14 @@ import java.util.Locale;
  * Functionality:
  * - Countdown timer that updates every second
  * - Progress ring that depletes clockwise
- * - Process monitoring to detect blocked apps (TODO: Phase 3)
+ * - Uses SessionMonitor service to detect blocked apps and websites
  * - Pause/resume capability
  * - Stop with confirmation
  *
  * Learning Points:
- * - Timer callback pattern (responding to timer events)
- * - JavaFX Platform.runLater (thread-safe UI updates)
- * - Managing multiple event handlers
+ * - Service separation: SessionMonitor handles violation detection
+ * - UI panels respond to service callbacks
+ * - Decoupled violation detection from UI logic
  */
 public class ActiveSessionPanel extends BasePanel {
 
@@ -123,8 +122,10 @@ public class ActiveSessionPanel extends BasePanel {
      */
     private Timer timer;
 
-    private ChromeWebsiteMonitor websiteMonitor;
-    private ForegroundAppMonitor foregroundAppMonitor;
+    /**
+     * Session monitor service for detecting blocked apps/websites
+     */
+    private SessionMonitor sessionMonitor;
 
     /**
      * Callback for events
@@ -135,14 +136,6 @@ public class ActiveSessionPanel extends BasePanel {
      * Whether session is paused
      */
     private boolean paused = false;
-    private static final int WEBSITE_CHECK_INTERVAL_SECONDS = 5;
-    private static final int WEBSITE_OVERLAY_RETRIGGER_SECONDS = 2;
-    private static final int APP_OVERLAY_RETRIGGER_SECONDS = 2;
-    private static final List<String> BLOCKED_WEBSITE_DOMAINS = Arrays.asList(
-            "youtube.com", "instagram.com", "reddit.com", "x.com", "tiktok.com", "netflix.com", "twitch.tv"
-    );
-    private int lastWebsiteOverlayTriggerSecond = -WEBSITE_OVERLAY_RETRIGGER_SECONDS;
-    private int lastAppOverlayTriggerSecond = -APP_OVERLAY_RETRIGGER_SECONDS;
 
     // ===== CONSTRUCTOR =====
 
@@ -155,9 +148,6 @@ public class ActiveSessionPanel extends BasePanel {
         super();
 
         this.focusSession = focusSession;
-
-        this.websiteMonitor = new ChromeWebsiteMonitor();
-        this.foregroundAppMonitor = new ForegroundAppMonitor();
 
         createComponents();
         layoutComponents();
@@ -176,11 +166,12 @@ public class ActiveSessionPanel extends BasePanel {
         sessionInfoLabel.setFont(UIConstants.getHeadingFont());
         sessionInfoLabel.setTextFill(getTextPrimaryColor());
 
-        // Blocked apps info
+        // Blocked apps and websites info
         List<String> blockedApps = focusSession.getBlockedApps();
-        String appsText = blockedApps.isEmpty() ? "No apps blocked" :
-                String.format("Blocking: %s", String.join(", ", blockedApps));
-        blockedAppsLabel = new Label(appsText);
+        List<String> blockedWebsites = focusSession.getBlockedWebsites();
+        
+        String blockedInfo = buildBlockedInfo(blockedApps, blockedWebsites);
+        blockedAppsLabel = new Label(blockedInfo);
         blockedAppsLabel.setFont(UIConstants.getSmallFont());
         blockedAppsLabel.setTextFill(getTextSecondaryColor());
         blockedAppsLabel.setWrapText(true);
@@ -283,13 +274,12 @@ public class ActiveSessionPanel extends BasePanel {
     private void initializeTimer() {
         int durationSeconds = focusSession.getPlannedDuration();
 
-        // Create timer with callback
+        // Create timer with callback (only for UI updates, not violation detection)
         timer = new Timer(durationSeconds, new Timer.TimerCallback() {
             @Override
             public void onTick(int remainingSeconds) {
-                // This runs on JavaFX thread (Timeline handles it)
+                // Update UI only
                 updateTimerDisplay(remainingSeconds);
-                checkForViolations();
             }
 
             @Override
@@ -299,8 +289,24 @@ public class ActiveSessionPanel extends BasePanel {
             }
         });
 
-        // Start the timer
+        // Create and start the session monitor for violation detection
+        sessionMonitor = new SessionMonitor(focusSession, new SessionMonitor.SessionMonitorCallback() {
+            @Override
+            public void onViolationDetected(String appName) {
+                if (callback != null) {
+                    callback.onViolationDetected(appName);
+                }
+            }
+
+            @Override
+            public void onViolationEnded() {
+                // Violation ended - overlay will disappear naturally
+            }
+        });
+
+        // Start the timer and monitor
         timer.start();
+        sessionMonitor.start();
     }
 
     // ===== EVENT HANDLERS =====
@@ -382,130 +388,26 @@ public class ActiveSessionPanel extends BasePanel {
         }
     }
 
+    // ===== HELPER METHODS =====
+
     /**
-     * Checks for violations (blocked apps running)
-     * TODO: Implement fully in Phase 3
+     * Builds a descriptive string of blocked apps and websites
      */
-    private void checkForViolations() {
-        // Only check if not paused
-        if (paused) {
-            return;
-        }
-
-        int elapsed = timer.getElapsedSeconds();
-        String frontmostApp = foregroundAppMonitor.getFrontmostApplication();
-        boolean websiteCheckDue = elapsed % WEBSITE_CHECK_INTERVAL_SECONDS == 0;
-        boolean websiteMatched = false;
-        boolean appMatched = false;
-
-        // Chrome-only website check on configured cadence.
-        if (websiteCheckDue) {
-            String matchedDomain = websiteMonitor.detectDistractingDomain(BLOCKED_WEBSITE_DOMAINS);
-            if (matchedDomain != null) {
-                websiteMatched = true;
-                String violationName = "Website: " + matchedDomain;
-                startViolationIfChanged(violationName);
-                focusSession.addViolationDuration(WEBSITE_CHECK_INTERVAL_SECONDS);
-
-                if (elapsed - lastWebsiteOverlayTriggerSecond >= WEBSITE_OVERLAY_RETRIGGER_SECONDS) {
-                    lastWebsiteOverlayTriggerSecond = elapsed;
-                    if (callback != null) {
-                        callback.onViolationDetected(violationName);
-                    }
-                }
-            }
-        }
-
-        // Topmost blocked app check every timer tick (more responsive).
-        List<String> blockedApps = focusSession.getBlockedApps();
+    private String buildBlockedInfo(List<String> blockedApps, List<String> blockedWebsites) {
+        List<String> parts = new ArrayList<>();
+        
         if (!blockedApps.isEmpty()) {
-            String matchedBlockedApp = matchFrontmostBlockedApp(frontmostApp, blockedApps);
-            if (matchedBlockedApp != null) {
-                appMatched = true;
-                startViolationIfChanged(matchedBlockedApp);
-                focusSession.addViolationDuration(1);
-
-                if (elapsed - lastAppOverlayTriggerSecond >= APP_OVERLAY_RETRIGGER_SECONDS) {
-                    lastAppOverlayTriggerSecond = elapsed;
-                    if (callback != null) {
-                        callback.onViolationDetected(matchedBlockedApp);
-                    }
-                }
-            }
+            parts.add("Apps: " + String.join(", ", blockedApps));
         }
-
-        // End violation when nothing relevant is currently topmost.
-        if (!websiteMatched && !appMatched) {
-            // If website check is not due, keep an active website violation until
-            // the next website check confirms it's gone.
-            if (focusSession.hasActiveViolation()) {
-                String activeName = focusSession.getCurrentViolation().getAppName();
-                boolean activeIsWebsite = activeName != null && activeName.startsWith("Website: ");
-                if (!activeIsWebsite || websiteCheckDue) {
-                    endActiveViolationIfAny();
-                }
-            }
+        if (!blockedWebsites.isEmpty()) {
+            parts.add("Sites: " + String.join(", ", blockedWebsites));
         }
-    }
-
-    private void startViolationIfChanged(String violationName) {
-        if (!focusSession.hasActiveViolation()) {
-            focusSession.startViolation(violationName);
-            resetOverlayCadenceFor(violationName);
-            return;
+        
+        if (parts.isEmpty()) {
+            return "No apps or sites blocked";
         }
-
-        String activeViolationName = focusSession.getCurrentViolation().getAppName();
-        if (activeViolationName == null || !activeViolationName.equals(violationName)) {
-            focusSession.startViolation(violationName);
-            resetOverlayCadenceFor(violationName);
-        }
-    }
-
-    private void endActiveViolationIfAny() {
-        if (!focusSession.hasActiveViolation()) {
-            return;
-        }
-        focusSession.endCurrentViolation();
-        lastWebsiteOverlayTriggerSecond = timer.getElapsedSeconds() - WEBSITE_OVERLAY_RETRIGGER_SECONDS;
-        lastAppOverlayTriggerSecond = timer.getElapsedSeconds() - APP_OVERLAY_RETRIGGER_SECONDS;
-    }
-
-    private void resetOverlayCadenceFor(String violationName) {
-        int elapsed = timer.getElapsedSeconds();
-        if (violationName != null && violationName.startsWith("Website: ")) {
-            lastWebsiteOverlayTriggerSecond = elapsed - WEBSITE_OVERLAY_RETRIGGER_SECONDS;
-        } else {
-            lastAppOverlayTriggerSecond = elapsed - APP_OVERLAY_RETRIGGER_SECONDS;
-        }
-    }
-
-    private String matchFrontmostBlockedApp(String frontmostApp, List<String> blockedApps) {
-        if (frontmostApp == null || frontmostApp.isBlank()) {
-            return null;
-        }
-        String normalizedFrontmost = normalizeAppName(frontmostApp);
-
-        for (String blockedApp : blockedApps) {
-            String normalizedBlocked = normalizeAppName(blockedApp);
-            if (normalizedBlocked.isEmpty()) {
-                continue;
-            }
-            if (normalizedFrontmost.contains(normalizedBlocked) || normalizedBlocked.contains(normalizedFrontmost)) {
-                return blockedApp;
-            }
-        }
-        return null;
-    }
-
-    private String normalizeAppName(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.toLowerCase(Locale.ROOT)
-                .replace(".app", "")
-                .replace(".exe", "")
-                .trim();
+        
+        return "Blocking: " + String.join(" | ", parts);
     }
 
     // ===== PUBLIC METHODS =====
@@ -543,6 +445,9 @@ public class ActiveSessionPanel extends BasePanel {
     public void cleanup() {
         if (timer != null) {
             timer.cancel();
+        }
+        if (sessionMonitor != null) {
+            sessionMonitor.stop();
         }
     }
 }
