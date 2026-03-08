@@ -140,12 +140,22 @@ public class ActiveSessionPanel extends BasePanel {
     // ===== CONSTRUCTOR =====
 
     /**
-     * Creates an active session panel for the given session
+     * Creates an active session panel for the given session with the default dark theme
      *
      * @param focusSession The session to track
      */
     public ActiveSessionPanel(FocusSession focusSession) {
-        super();
+        this(focusSession, new DarkTheme());
+    }
+
+    /**
+     * Creates an active session panel for the given session with a custom theme
+     *
+     * @param focusSession The session to track
+     * @param theme Theme providing the color palette
+     */
+    public ActiveSessionPanel(FocusSession focusSession, Theme theme) {
+        super(theme);
 
         this.focusSession = focusSession;
 
@@ -180,6 +190,11 @@ public class ActiveSessionPanel extends BasePanel {
 
         // Progress ring (display mode, not selectable)
         progressRing = new CircularProgressRing(UIConstants.TIMER_RING_DIAMETER);
+        progressRing.setThemeColors(
+                getTheme().getBackgroundSecondary(),
+                getAccentColor(),
+                getTextPrimaryColor()
+        );
         progressRing.setSelectionMode(false); // Display mode
         progressRing.setProgress(1.0); // Start full
 
@@ -193,7 +208,7 @@ public class ActiveSessionPanel extends BasePanel {
         // Status label (hidden by default, shown when paused)
         statusLabel = new Label("Paused");
         statusLabel.setFont(UIConstants.getHeadingFont());
-        statusLabel.setTextFill(UIConstants.WARNING_COLOR);
+        statusLabel.setTextFill(getWarningColor());
         statusLabel.setVisible(false);
 
         // PAUSE button
@@ -202,7 +217,7 @@ public class ActiveSessionPanel extends BasePanel {
         pauseButton.setPrefHeight(UIConstants.BUTTON_HEIGHT);
         pauseButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 1.2);
         pauseButton.setStyle(
-                "-fx-background-color: " + toRGBCode(UIConstants.WARNING_COLOR) + ";" +
+                "-fx-background-color: " + toRGBCode(getWarningColor()) + ";" +
                         "-fx-text-fill: black;" +
                         "-fx-background-radius: 10;" +
                         "-fx-cursor: hand;" +
@@ -215,7 +230,7 @@ public class ActiveSessionPanel extends BasePanel {
         stopButton.setPrefHeight(UIConstants.BUTTON_HEIGHT);
         stopButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 1.2);
         stopButton.setStyle(
-                "-fx-background-color: " + toRGBCode(UIConstants.DANGER_COLOR) + ";" +
+                "-fx-background-color: " + toRGBCode(getErrorColor()) + ";" +
                         "-fx-text-fill: white;" +
                         "-fx-background-radius: 10;" +
                         "-fx-cursor: hand;" +
@@ -378,13 +393,13 @@ public class ActiveSessionPanel extends BasePanel {
         // Change ring color based on remaining time
         if (progress < 0.1) {
             // Less than 10% - red
-            progressRing.setRingColor(UIConstants.DANGER_COLOR);
+            progressRing.setRingColor(getErrorColor());
         } else if (progress < 0.25) {
             // Less than 25% - yellow
-            progressRing.setRingColor(UIConstants.WARNING_COLOR);
+            progressRing.setRingColor(getWarningColor());
         } else {
             // Normal - accent color
-            progressRing.setRingColor(UIConstants.ACCENT_COLOR);
+            progressRing.setRingColor(getAccentColor());
         }
     }
 

@@ -8,6 +8,9 @@ import focus.kudafocus.ui.AppSelectionModal;
 import focus.kudafocus.ui.CircularTimerPanel;
 import focus.kudafocus.ui.DistractionOverlay;
 import focus.kudafocus.ui.SessionSummaryPanel;
+import focus.kudafocus.ui.DarkTheme;
+import focus.kudafocus.ui.LightTheme;
+import focus.kudafocus.ui.Theme;
 import focus.kudafocus.ui.UIConstants;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -48,6 +51,21 @@ public class Main extends Application {
      * Home screen panel
      */
     private CircularTimerPanel timerPanel;
+
+    /**
+     * Current theme (default dark)
+     */
+    private Theme currentTheme = new DarkTheme();
+
+    /**
+     * Toggles between light and dark mode and refreshes the home screen
+     *
+     * @param enable true to enable light mode, false to revert to dark mode
+     */
+    private void toggleLightMode(boolean enable) {
+        currentTheme = enable ? new LightTheme() : new DarkTheme();
+        showHomeScreen();
+    }
 
     /**
      * Active session panel (running timer)
@@ -140,8 +158,8 @@ public class Main extends Application {
             distractionOverlay = null;
         }
 
-        // Create new timer panel
-        timerPanel = new CircularTimerPanel();
+        // Create new timer panel with current theme
+        timerPanel = new CircularTimerPanel(currentTheme);
 
         // Set up callback for panel events
         timerPanel.setCallback(new CircularTimerPanel.CircularTimerCallback() {
@@ -153,6 +171,11 @@ public class Main extends Application {
             @Override
             public void onSelectApps() {
                 handleSelectApps();
+            }
+
+            @Override
+            public void onToggleLightMode(boolean enable) {
+                toggleLightMode(enable);
             }
         });
 
@@ -181,7 +204,7 @@ public class Main extends Application {
         System.out.println("Blocked apps: " + (session.getBlockedApps().isEmpty() ? "None" : session.getBlockedApps()));
 
         // Create active session panel
-        activeSessionPanel = new ActiveSessionPanel(session);
+        activeSessionPanel = new ActiveSessionPanel(session, currentTheme);
 
         // Set up callback for session events
         activeSessionPanel.setCallback(new ActiveSessionPanel.ActiveSessionCallback() {
@@ -224,7 +247,7 @@ public class Main extends Application {
         }
 
         // Create summary panel
-        summaryPanel = new SessionSummaryPanel(session);
+        summaryPanel = new SessionSummaryPanel(session, currentTheme);
 
         // Set up callback
         summaryPanel.setCallback(new SessionSummaryPanel.SummaryCallback() {
@@ -253,7 +276,7 @@ public class Main extends Application {
             distractionOverlay.close();
         }
 
-        distractionOverlay = new DistractionOverlay(currentSession, appName);
+        distractionOverlay = new DistractionOverlay(currentSession, appName, currentTheme);
 
         // Set up callback
         distractionOverlay.setCallback(new DistractionOverlay.OverlayCallback() {
@@ -290,7 +313,8 @@ public class Main extends Application {
         AppSelectionModal modal = new AppSelectionModal(
                 primaryStage,
                 timerPanel.getSelectedApps(),
-                timerPanel.getSelectedWebsites()
+                timerPanel.getSelectedWebsites(),
+                currentTheme
         );
         modal.showAndWait();
 

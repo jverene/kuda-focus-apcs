@@ -5,6 +5,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -54,6 +57,13 @@ public class CircularTimerPanel extends BasePanel {
          * Called when user wants to select apps to block
          */
         void onSelectApps();
+
+        /**
+         * Called when user toggles the light mode button
+         *
+         * @param enable true to enable light mode, false to revert to dark mode
+         */
+        void onToggleLightMode(boolean enable);
     }
 
     // ===== COMPONENTS =====
@@ -88,6 +98,11 @@ public class CircularTimerPanel extends BasePanel {
      */
     private Label appsStatusLabel;
 
+    /**
+     * Light mode toggle button (top-right corner)
+     */
+    private Button lightModeButton;
+
     // ===== STATE =====
 
     /**
@@ -110,14 +125,32 @@ public class CircularTimerPanel extends BasePanel {
      */
     private CircularTimerCallback callback;
 
-    // ===== CONSTRUCTOR =====
+    /**
+     * Whether light mode is currently active
+     */
+    private boolean lightModeEnabled = false;
+
+    // ===== CONSTRUCTORS =====
 
     /**
-     * Creates the circular timer panel
+     * Creates the circular timer panel with the default dark theme
      */
     public CircularTimerPanel() {
-        super(); // Call BasePanel constructor to initialize styling
+        super();
+        createComponents();
+        layoutComponents();
+        setupEventHandlers();
+        updateTimeDisplay();
+    }
 
+    /**
+     * Creates the circular timer panel with a custom theme
+     *
+     * @param theme Theme providing the color palette
+     */
+    public CircularTimerPanel(Theme theme) {
+        super(theme);
+        lightModeEnabled = (theme instanceof LightTheme);
         createComponents();
         layoutComponents();
         setupEventHandlers();
@@ -137,6 +170,11 @@ public class CircularTimerPanel extends BasePanel {
 
         // Circular progress ring
         progressRing = new CircularProgressRing(UIConstants.TIMER_RING_DIAMETER);
+        progressRing.setThemeColors(
+                getTheme().getBackgroundSecondary(),
+                getAccentColor(),
+                getTextPrimaryColor()
+        );
         progressRing.setSelectionMode(true);
         progressRing.setSelectedMinutes(45); // Default 45 minutes
 
@@ -164,7 +202,7 @@ public class CircularTimerPanel extends BasePanel {
         selectAppsButton.setPrefHeight(UIConstants.BUTTON_HEIGHT);
         selectAppsButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 2);
         selectAppsButton.setStyle(
-                "-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_SECONDARY) + ";" +
+                "-fx-background-color: " + toRGBCode(getTheme().getBackgroundSecondary()) + ";" +
                         "-fx-text-fill: " + toRGBCode(getTextPrimaryColor()) + ";" +
                         "-fx-background-radius: 10;" +
                         "-fx-cursor: hand;"
@@ -174,6 +212,17 @@ public class CircularTimerPanel extends BasePanel {
         appsStatusLabel = new Label("No apps selected");
         appsStatusLabel.setFont(UIConstants.getSmallFont());
         appsStatusLabel.setTextFill(getTextSecondaryColor());
+
+        // Light mode toggle button
+        lightModeButton = new Button(lightModeEnabled ? "Dark Mode" : "Light Mode");
+        lightModeButton.setFont(UIConstants.getSmallFont());
+        lightModeButton.setStyle(
+                "-fx-background-color: " + toRGBCode(getTheme().getBackgroundSecondary()) + ";" +
+                        "-fx-text-fill: " + toRGBCode(getTextSecondaryColor()) + ";" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-padding: 6 14;"
+        );
     }
 
     /**
@@ -206,12 +255,19 @@ public class CircularTimerPanel extends BasePanel {
         bottomSection.setAlignment(Pos.CENTER);
         bottomSection.getChildren().addAll(selectAppsButton, appsStatusLabel);
 
+        // Top bar with streak on the left and light mode toggle on the right
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox topBar = new HBox(streakLabel, spacer, lightModeButton);
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setPadding(new Insets(0));
+
         // Add all sections to main panel
-        VBox.setMargin(streakLabel, new Insets(UIConstants.SPACING_LG, 0, 0, 0));
+        VBox.setMargin(topBar, new Insets(UIConstants.SPACING_LG, 0, 0, 0));
         VBox.setMargin(ringStack, new Insets(UIConstants.SPACING_XL, 0, 0, 0));
         VBox.setMargin(bottomSection, new Insets(UIConstants.SPACING_XL, 0, UIConstants.SPACING_LG, 0));
 
-        this.getChildren().addAll(streakLabel, ringStack, bottomSection);
+        this.getChildren().addAll(topBar, ringStack, bottomSection);
         this.setAlignment(Pos.CENTER);
     }
 
@@ -227,6 +283,9 @@ public class CircularTimerPanel extends BasePanel {
 
         // App selection button
         selectAppsButton.setOnAction(event -> handleSelectApps());
+
+        // Light mode toggle button
+        lightModeButton.setOnAction(event -> handleToggleLightMode());
     }
 
     // ===== EVENT HANDLERS =====
@@ -247,6 +306,16 @@ public class CircularTimerPanel extends BasePanel {
         // Notify callback
         if (callback != null) {
             callback.onStartSession(minutes, new ArrayList<>(selectedApps), new ArrayList<>(selectedWebsites));
+        }
+    }
+
+    /**
+     * Handles light mode toggle button click
+     */
+    private void handleToggleLightMode() {
+        lightModeEnabled = !lightModeEnabled;
+        if (callback != null) {
+            callback.onToggleLightMode(lightModeEnabled);
         }
     }
 

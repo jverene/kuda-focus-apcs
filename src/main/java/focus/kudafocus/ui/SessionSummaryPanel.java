@@ -108,12 +108,22 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== CONSTRUCTOR =====
 
     /**
-     * Creates a session summary panel for the given completed session
+     * Creates a session summary panel for the given completed session with the default dark theme
      *
      * @param focusSession The completed session
      */
     public SessionSummaryPanel(FocusSession focusSession) {
-        super();
+        this(focusSession, new DarkTheme());
+    }
+
+    /**
+     * Creates a session summary panel for the given completed session with a custom theme
+     *
+     * @param focusSession The completed session
+     * @param theme Theme providing the color palette
+     */
+    public SessionSummaryPanel(FocusSession focusSession, Theme theme) {
+        super(theme);
 
         this.focusSession = focusSession;
 
@@ -193,10 +203,10 @@ public class SessionSummaryPanel extends BasePanel {
         boolean qualifies = focusSession.qualifiesForStreak();
         if (qualifies) {
             streakUpdateLabel = new Label("✨ This session counts toward your streak!");
-            streakUpdateLabel.setTextFill(UIConstants.SUCCESS_COLOR);
+            streakUpdateLabel.setTextFill(getSuccessColor());
         } else {
             streakUpdateLabel = new Label("Reach 80+ score and 30+ min to build your streak");
-            streakUpdateLabel.setTextFill(UIConstants.TEXT_MUTED);
+            streakUpdateLabel.setTextFill(getTextMutedColor());
         }
         streakUpdateLabel.setFont(UIConstants.getSmallFont());
         streakUpdateLabel.setTextAlignment(TextAlignment.CENTER);
@@ -296,11 +306,11 @@ public class SessionSummaryPanel extends BasePanel {
      */
     private Color getScoreColor(int score) {
         if (score >= UIConstants.MIN_STREAK_SCORE) {
-            return UIConstants.SUCCESS_COLOR; // 80-100: Green
+            return getSuccessColor(); // 80-100: Green
         } else if (score >= 50) {
-            return UIConstants.WARNING_COLOR; // 50-79: Yellow
+            return getWarningColor(); // 50-79: Yellow
         } else {
-            return UIConstants.DANGER_COLOR; // 0-49: Red
+            return getErrorColor(); // 0-49: Red
         }
     }
 
