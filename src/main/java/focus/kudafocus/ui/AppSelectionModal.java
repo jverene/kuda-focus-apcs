@@ -56,15 +56,42 @@ public class AppSelectionModal extends Stage {
     private final Label statusLabel;
     private final TextField searchField;
     private final TextArea websitesTextArea;
+    private final Theme theme;
     private Timeline refreshTimeline;
 
     private boolean confirmed;
 
+    /**
+     * Creates an app selection modal with the default dark theme
+     *
+     * @param owner Parent window
+     * @param initiallySelectedApps Previously selected apps
+     */
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps) {
-        this(owner, initiallySelectedApps, new ArrayList<>());
+        this(owner, initiallySelectedApps, new ArrayList<>(), new DarkTheme());
     }
 
+    /**
+     * Creates an app selection modal with the default dark theme
+     *
+     * @param owner Parent window
+     * @param initiallySelectedApps Previously selected apps
+     * @param initiallySelectedWebsites Previously selected websites
+     */
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps, List<String> initiallySelectedWebsites) {
+        this(owner, initiallySelectedApps, initiallySelectedWebsites, new DarkTheme());
+    }
+
+    /**
+     * Creates an app selection modal with the given theme
+     *
+     * @param owner Parent window
+     * @param initiallySelectedApps Previously selected apps
+     * @param initiallySelectedWebsites Previously selected websites
+     * @param theme Theme providing the color palette
+     */
+    public AppSelectionModal(Window owner, List<String> initiallySelectedApps, List<String> initiallySelectedWebsites, Theme theme) {
+        this.theme = theme;
         this.appMonitor = AppMonitor.createForCurrentOS();
         this.selectedApps = new HashSet<>(initiallySelectedApps);
         this.allApps = FXCollections.observableArrayList();
@@ -86,35 +113,35 @@ public class AppSelectionModal extends Stage {
 
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(UIConstants.PADDING_STANDARD));
-        root.setStyle("-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_PRIMARY) + ";");
+        root.setStyle("-fx-background-color: " + toRGBCode(theme.getBackgroundPrimary()) + ";");
 
         VBox content = new VBox(UIConstants.SPACING_MD);
         content.setAlignment(Pos.TOP_CENTER);
 
         Label titleLabel = new Label("Select apps and websites to block");
         titleLabel.setFont(UIConstants.getHeadingFont());
-        titleLabel.setTextFill(UIConstants.TEXT_PRIMARY);
+        titleLabel.setTextFill(theme.getTextPrimary());
 
         // Apps section
         Label appsLabel = new Label("Applications:");
         appsLabel.setFont(UIConstants.getBodyFont());
-        appsLabel.setTextFill(UIConstants.TEXT_PRIMARY);
+        appsLabel.setTextFill(theme.getTextPrimary());
 
         searchField.setPromptText("Search running apps...");
         searchField.setFont(UIConstants.getBodyFont());
         searchField.setStyle(
-                "-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_SECONDARY) + ";" +
-                        "-fx-text-fill: " + toRGBCode(UIConstants.TEXT_PRIMARY) + ";" +
-                        "-fx-prompt-text-fill: " + toRGBCode(UIConstants.TEXT_MUTED) + ";"
+                "-fx-background-color: " + toRGBCode(theme.getBackgroundSecondary()) + ";" +
+                        "-fx-text-fill: " + toRGBCode(theme.getTextPrimary()) + ";" +
+                        "-fx-prompt-text-fill: " + toRGBCode(theme.getTextMuted()) + ";"
         );
 
         statusLabel.setFont(UIConstants.getSmallFont());
-        statusLabel.setTextFill(UIConstants.TEXT_SECONDARY);
+        statusLabel.setTextFill(theme.getTextSecondary());
 
         ScrollPane scrollPane = new ScrollPane(appListContainer);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefViewportHeight(200);
-        scrollPane.setStyle("-fx-background: " + toRGBCode(UIConstants.BACKGROUND_PRIMARY) + ";");
+        scrollPane.setStyle("-fx-background: " + toRGBCode(theme.getBackgroundPrimary()) + ";");
 
         HBox quickActionRow = new HBox(UIConstants.SPACING_SM);
         quickActionRow.setAlignment(Pos.CENTER_LEFT);
@@ -142,15 +169,15 @@ public class AppSelectionModal extends Stage {
         // Websites section
         Label sitesLabel = new Label("Websites (comma-separated):");
         sitesLabel.setFont(UIConstants.getBodyFont());
-        sitesLabel.setTextFill(UIConstants.TEXT_PRIMARY);
+        sitesLabel.setTextFill(theme.getTextPrimary());
 
         websitesTextArea.setPromptText("e.g., youtube.com, instagram.com, reddit.com");
         websitesTextArea.setFont(UIConstants.getSmallFont());
         websitesTextArea.setWrapText(true);
         websitesTextArea.setPrefRowCount(3);
         websitesTextArea.setStyle(
-                "-fx-control-inner-background: " + toRGBCode(UIConstants.BACKGROUND_SECONDARY) + ";" +
-                        "-fx-text-fill: " + toRGBCode(UIConstants.TEXT_PRIMARY) + ";" +
+                "-fx-control-inner-background: " + toRGBCode(theme.getBackgroundSecondary()) + ";" +
+                        "-fx-text-fill: " + toRGBCode(theme.getTextPrimary()) + ";" +
                         "-fx-font-family: monospace;"
         );
 
@@ -162,7 +189,7 @@ public class AppSelectionModal extends Stage {
 
         Button confirmButton = new Button("Confirm");
         confirmButton.setStyle(
-                "-fx-background-color: " + toRGBCode(UIConstants.ACCENT_COLOR) + ";" +
+                "-fx-background-color: " + toRGBCode(theme.getAccentColor()) + ";" +
                         "-fx-text-fill: white;"
         );
         confirmButton.setOnAction(event -> {
@@ -275,11 +302,11 @@ public class AppSelectionModal extends Stage {
             HBox appRow = new HBox(UIConstants.SPACING_MD);
             appRow.setAlignment(Pos.CENTER_LEFT);
             appRow.setPadding(new Insets(UIConstants.SPACING_SM));
-            appRow.setStyle("-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_SECONDARY) + "; -fx-background-radius: 8;");
+            appRow.setStyle("-fx-background-color: " + toRGBCode(theme.getBackgroundSecondary()) + "; -fx-background-radius: 8;");
 
             CheckBox checkBox = new CheckBox(appName);
             checkBox.setFont(UIConstants.getBodyFont());
-            checkBox.setTextFill(UIConstants.TEXT_PRIMARY);
+            checkBox.setTextFill(theme.getTextPrimary());
             checkBox.setSelected(selectedApps.contains(appName));
             checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
                 if (isSelected) {
@@ -292,9 +319,9 @@ public class AppSelectionModal extends Stage {
 
             Label categoryLabel = new Label(getCategory(appName));
             categoryLabel.setFont(UIConstants.getTinyFont());
-            categoryLabel.setTextFill(UIConstants.TEXT_MUTED);
+            categoryLabel.setTextFill(theme.getTextMuted());
             categoryLabel.setStyle(
-                    "-fx-background-color: " + toRGBCode(UIConstants.BACKGROUND_PRIMARY) + ";" +
+                    "-fx-background-color: " + toRGBCode(theme.getBackgroundPrimary()) + ";" +
                             "-fx-padding: 3 8 3 8;" +
                             "-fx-background-radius: 10;"
             );
@@ -309,7 +336,7 @@ public class AppSelectionModal extends Stage {
         if (filtered.isEmpty()) {
             Label emptyLabel = new Label("No apps match your search.");
             emptyLabel.setFont(UIConstants.getSmallFont());
-            emptyLabel.setTextFill(UIConstants.TEXT_MUTED);
+            emptyLabel.setTextFill(theme.getTextMuted());
             appListContainer.getChildren().add(emptyLabel);
         }
     }

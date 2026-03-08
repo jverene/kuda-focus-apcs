@@ -430,6 +430,20 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
+     * Updates the ring colors to match the active theme.
+     *
+     * @param backgroundRingColor Color for the background ring track
+     * @param accentColor Color for the progress arc and indicator fill
+     * @param textColor Color for the indicator stroke
+     */
+    public void setThemeColors(Color backgroundRingColor, Color accentColor, Color textColor) {
+        backgroundRing.setStroke(backgroundRingColor);
+        progressRing.setStroke(accentColor);
+        selectionIndicator.setFill(accentColor);
+        selectionIndicator.setStroke(textColor);
+    }
+
+    /**
      * Resets the ring to initial state (45 minutes, selection mode)
      */
     public void reset() {

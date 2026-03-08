@@ -24,8 +24,14 @@ import javafx.scene.text.Font;
  */
 public abstract class BasePanel extends VBox {
 
-    // ===== SHARED GUI PROPERTIES =====
-    // These are 'protected' so subclasses can access them
+    // ===== THEME =====
+
+    /**
+     * Active theme providing the color palette
+     */
+    protected Theme theme;
+
+    // ===== COLOR PROPERTIES =====
 
     /**
      * Primary background color for the panel
@@ -48,6 +54,33 @@ public abstract class BasePanel extends VBox {
     protected Color textSecondaryColor;
 
     /**
+     * Muted text color (for hints and disabled content)
+     */
+    protected Color textMutedColor;
+
+    /**
+     * Success color (for positive indicators)
+     */
+    protected Color successColor;
+
+    /**
+     * Warning color (for caution indicators)
+     */
+    protected Color warningColor;
+
+    /**
+     * Error color (for negative indicators)
+     */
+    protected Color errorColor;
+
+    /**
+     * Overlay background color (semi-transparent)
+     */
+    protected Color overlayBackgroundColor;
+
+    // ===== TYPOGRAPHY PROPERTIES =====
+
+    /**
      * Title font for headings
      */
     protected Font titleFont;
@@ -56,6 +89,8 @@ public abstract class BasePanel extends VBox {
      * Body font for regular text
      */
     protected Font bodyFont;
+
+    // ===== LAYOUT PROPERTIES =====
 
     /**
      * Standard padding amount
@@ -67,15 +102,25 @@ public abstract class BasePanel extends VBox {
      */
     protected double standardSpacing;
 
-    // ===== CONSTRUCTOR =====
+    // ===== CONSTRUCTORS =====
 
     /**
-     * Creates a new BasePanel with standard KUDA FOCUS styling.
-     * All subclasses must call this constructor (implicitly or explicitly)
-     * to initialize the shared visual properties.
+     * Creates a new BasePanel with the default dark theme.
+     * Delegates to {@link #BasePanel(Theme)} with a {@link DarkTheme}.
      */
     public BasePanel() {
+        this(new DarkTheme());
+    }
+
+    /**
+     * Creates a new BasePanel with the given theme.
+     * Initializes all shared visual properties from the theme and UIConstants.
+     *
+     * @param theme Theme providing the color palette
+     */
+    public BasePanel(Theme theme) {
         super();
+        this.theme = theme;
         initializeColors();
         initializeTypography();
         initializeSpacing();
@@ -85,17 +130,22 @@ public abstract class BasePanel extends VBox {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Initialize color scheme from UIConstants
+     * Initializes the color scheme from the active theme
      */
     private void initializeColors() {
-        this.primaryColor = UIConstants.BACKGROUND_PRIMARY;
-        this.accentColor = UIConstants.ACCENT_COLOR;
-        this.textPrimaryColor = UIConstants.TEXT_PRIMARY;
-        this.textSecondaryColor = UIConstants.TEXT_SECONDARY;
+        this.primaryColor = theme.getBackgroundPrimary();
+        this.accentColor = theme.getAccentColor();
+        this.textPrimaryColor = theme.getTextPrimary();
+        this.textSecondaryColor = theme.getTextSecondary();
+        this.textMutedColor = theme.getTextMuted();
+        this.successColor = theme.getSuccessColor();
+        this.warningColor = theme.getWarningColor();
+        this.errorColor = theme.getErrorColor();
+        this.overlayBackgroundColor = theme.getOverlayBackground();
     }
 
     /**
-     * Initialize typography from UIConstants
+     * Initializes typography from UIConstants
      */
     private void initializeTypography() {
         this.titleFont = UIConstants.getTitleFont();
@@ -103,7 +153,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Initialize spacing and padding from UIConstants
+     * Initializes spacing and padding from UIConstants
      */
     private void initializeSpacing() {
         this.standardPadding = UIConstants.PADDING_STANDARD;
@@ -162,10 +212,19 @@ public abstract class BasePanel extends VBox {
                 color.getOpacity());
     }
 
-    // ===== GETTERS FOR SUBCLASSES =====
+    // ===== GETTERS =====
 
     /**
-     * Get the primary background color
+     * Gets the active theme
+     *
+     * @return Active theme
+     */
+    protected Theme getTheme() {
+        return theme;
+    }
+
+    /**
+     * Gets the primary background color
      *
      * @return Primary color
      */
@@ -174,7 +233,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get the accent color
+     * Gets the accent color
      *
      * @return Accent color
      */
@@ -183,7 +242,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get the primary text color
+     * Gets the primary text color
      *
      * @return Primary text color
      */
@@ -192,7 +251,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get the secondary text color
+     * Gets the secondary text color
      *
      * @return Secondary text color
      */
@@ -201,7 +260,52 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get the title font
+     * Gets the muted text color
+     *
+     * @return Muted text color
+     */
+    protected Color getTextMutedColor() {
+        return textMutedColor;
+    }
+
+    /**
+     * Gets the success color
+     *
+     * @return Success color
+     */
+    protected Color getSuccessColor() {
+        return successColor;
+    }
+
+    /**
+     * Gets the warning color
+     *
+     * @return Warning color
+     */
+    protected Color getWarningColor() {
+        return warningColor;
+    }
+
+    /**
+     * Gets the error color
+     *
+     * @return Error color
+     */
+    protected Color getErrorColor() {
+        return errorColor;
+    }
+
+    /**
+     * Gets the overlay background color
+     *
+     * @return Overlay background color
+     */
+    protected Color getOverlayBackgroundColor() {
+        return overlayBackgroundColor;
+    }
+
+    /**
+     * Gets the title font
      *
      * @return Title font
      */
@@ -210,7 +314,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get the body font
+     * Gets the body font
      *
      * @return Body font
      */
@@ -219,7 +323,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get standard padding amount
+     * Gets the standard padding amount
      *
      * @return Standard padding in pixels
      */
@@ -228,7 +332,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Get standard spacing amount
+     * Gets the standard spacing amount
      *
      * @return Standard spacing in pixels
      */

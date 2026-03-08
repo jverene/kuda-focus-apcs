@@ -109,21 +109,38 @@ public class DistractionOverlay {
     private OverlayCallback callback;
 
     /**
+     * Active theme providing the color palette
+     */
+    private Theme theme;
+
+    /**
      * Whether overlay is currently showing
      */
     private boolean showing = false;
 
-    // ===== CONSTRUCTOR =====
+    // ===== CONSTRUCTORS =====
 
     /**
-     * Creates a distraction overlay for a specific app and session
+     * Creates a distraction overlay with the default dark theme
      *
      * @param focusSession The active focus session
      * @param blockedAppName Name of the blocked app
      */
     public DistractionOverlay(FocusSession focusSession, String blockedAppName) {
+        this(focusSession, blockedAppName, new DarkTheme());
+    }
+
+    /**
+     * Creates a distraction overlay with a custom theme
+     *
+     * @param focusSession The active focus session
+     * @param blockedAppName Name of the blocked app
+     * @param theme Theme providing the color palette
+     */
+    public DistractionOverlay(FocusSession focusSession, String blockedAppName, Theme theme) {
         this.focusSession = focusSession;
         this.blockedAppName = blockedAppName;
+        this.theme = theme;
 
         createOverlay();
     }
@@ -168,20 +185,20 @@ public class DistractionOverlay {
         // Main message
         messageLabel = new Label("⚠️ Stay Focused!");
         messageLabel.setFont(UIConstants.getTitleFont());
-        messageLabel.setTextFill(UIConstants.TEXT_PRIMARY);
+        messageLabel.setTextFill(theme.getTextPrimary());
         messageLabel.setTextAlignment(TextAlignment.CENTER);
 
         // App name
         appNameLabel = new Label("You opened: " + blockedAppName);
         appNameLabel.setFont(UIConstants.getHeadingFont());
-        appNameLabel.setTextFill(UIConstants.WARNING_COLOR);
+        appNameLabel.setTextFill(theme.getWarningColor());
         appNameLabel.setTextAlignment(TextAlignment.CENTER);
 
         // Time remaining
         int remainingMinutes = focusSession.getPlannedDurationMinutes();
         timeRemainingLabel = new Label(String.format("%d minutes remaining in your session", remainingMinutes));
         timeRemainingLabel.setFont(UIConstants.getBodyFont());
-        timeRemainingLabel.setTextFill(UIConstants.TEXT_SECONDARY);
+        timeRemainingLabel.setTextFill(theme.getTextSecondary());
         timeRemainingLabel.setTextAlignment(TextAlignment.CENTER);
 
         // Dismiss button
@@ -190,7 +207,7 @@ public class DistractionOverlay {
         dismissButton.setPrefHeight(UIConstants.BUTTON_HEIGHT * 1.2);
         dismissButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 2);
         dismissButton.setStyle(
-                "-fx-background-color: " + toRGBCode(UIConstants.ACCENT_COLOR) + ";" +
+                "-fx-background-color: " + toRGBCode(theme.getAccentColor()) + ";" +
                         "-fx-text-fill: white;" +
                         "-fx-background-radius: 15;" +
                         "-fx-cursor: hand;" +
@@ -201,7 +218,7 @@ public class DistractionOverlay {
         warningLabel = new Label("Close the app to continue focused work\nThis overlay will reappear in "
                 + UIConstants.OVERLAY_REAPPEAR_SECONDS + " seconds");
         warningLabel.setFont(UIConstants.getSmallFont());
-        warningLabel.setTextFill(UIConstants.TEXT_MUTED);
+        warningLabel.setTextFill(theme.getTextMuted());
         warningLabel.setTextAlignment(TextAlignment.CENTER);
     }
 
@@ -214,7 +231,7 @@ public class DistractionOverlay {
         root.setPadding(new Insets(UIConstants.PADDING_STANDARD * 3));
 
         // Semi-transparent dark background
-        root.setStyle("-fx-background-color: " + toRGBACode(UIConstants.OVERLAY_BACKGROUND) + ";");
+        root.setStyle("-fx-background-color: " + toRGBACode(theme.getOverlayBackground()) + ";");
 
         // Content container
         VBox content = new VBox(UIConstants.SPACING_LG);
