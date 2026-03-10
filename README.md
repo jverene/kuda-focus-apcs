@@ -71,7 +71,14 @@ A session qualifies for your streak if it meets all of these criteria:
 - Focus score of 80 or higher
 - Completed successfully (not abandoned)
 
-Your streak counter shows consecutive days with at least one qualifying session.
+Your streak counter shows consecutive days with at least one qualifying session. The streak data is automatically saved to `~/.kudafocus/streak_data.json` and persists across app sessions.
+
+**Streak Logic:**
+- First qualifying session starts your streak at 1 day
+- Multiple qualifying sessions on the same day only count once
+- Consecutive days with qualifying sessions increment your streak
+- Missing a day (no qualifying session) resets your streak to 1 on the next qualifying session
+- Non-qualifying sessions don't affect your current streak
 
 ## Project Structure
 
