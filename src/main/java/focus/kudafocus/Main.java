@@ -1,6 +1,7 @@
 package focus.kudafocus;
 
 import focus.kudafocus.core.FocusSession;
+import focus.kudafocus.core.StreakTracker;
 import focus.kudafocus.data.models.UserPreferences;
 import focus.kudafocus.data.storage.PreferencesStore;
 import focus.kudafocus.ui.ActiveSessionPanel;
@@ -88,6 +89,7 @@ public class Main extends Application {
     private FocusSession currentSession;
     private PreferencesStore preferencesStore;
     private UserPreferences userPreferences;
+    private StreakTracker streakTracker;
 
     /**
      * Application entry point
@@ -108,6 +110,7 @@ public class Main extends Application {
         this.primaryStage = primaryStage;
         this.preferencesStore = new PreferencesStore();
         this.userPreferences = preferencesStore.load();
+        this.streakTracker = new StreakTracker();
 
         // Set up window
         primaryStage.setTitle("KUDA FOCUS - Minimalist Focus Timer");
@@ -179,8 +182,8 @@ public class Main extends Application {
             }
         });
 
-        // Set initial streak (TODO: load from data store in Phase 4)
-        timerPanel.setStreak(0);
+        // Set initial streak from tracker
+        timerPanel.setStreak(streakTracker.getCurrentStreak());
         timerPanel.setSelectedApps(userPreferences.getLastSelectedApps());
         // IMPORTANT: Do NOT auto-load blocked websites from previous sessions
         // Users should explicitly select websites for each session to avoid surprising auto-blocking
@@ -232,6 +235,11 @@ public class Main extends Application {
      * Shows the session summary screen (results)
      */
     private void showSessionSummary(FocusSession session) {
+        // Update streak if session qualifies
+        if (session.qualifiesForStreak()) {
+            streakTracker.recordSession(true);
+        }
+
         System.out.println("\n=== SESSION SUMMARY ===");
         System.out.println("Focus Score: " + session.getFocusScore());
         System.out.println("Duration: " + session.getActualDurationMinutes() + " / " + session.getPlannedDurationMinutes() + " minutes");
@@ -239,6 +247,7 @@ public class Main extends Application {
         System.out.println("Dismissals: " + session.getTotalDismissals());
         System.out.println("Most Distracting: " + session.getMostDistractingApp());
         System.out.println("Qualifies for Streak: " + (session.qualifiesForStreak() ? "YES" : "NO"));
+        System.out.println("Current Streak: " + streakTracker.getCurrentStreak() + " days");
 
         // Clean up active session panel
         if (activeSessionPanel != null) {
@@ -246,8 +255,8 @@ public class Main extends Application {
             activeSessionPanel = null;
         }
 
-        // Create summary panel
-        summaryPanel = new SessionSummaryPanel(session, currentTheme);
+        // Create summary panel with current streak count
+        summaryPanel = new SessionSummaryPanel(session, streakTracker.getCurrentStreak(), currentTheme);
 
         // Set up callback
         summaryPanel.setCallback(new SessionSummaryPanel.SummaryCallback() {

@@ -101,6 +101,11 @@ public class SessionSummaryPanel extends BasePanel {
     private FocusSession focusSession;
 
     /**
+     * Current streak count
+     */
+    private int currentStreak;
+
+    /**
      * Callback for events
      */
     private SummaryCallback callback;
@@ -113,7 +118,7 @@ public class SessionSummaryPanel extends BasePanel {
      * @param focusSession The completed session
      */
     public SessionSummaryPanel(FocusSession focusSession) {
-        this(focusSession, new DarkTheme());
+        this(focusSession, 0, new DarkTheme());
     }
 
     /**
@@ -123,9 +128,21 @@ public class SessionSummaryPanel extends BasePanel {
      * @param theme Theme providing the color palette
      */
     public SessionSummaryPanel(FocusSession focusSession, Theme theme) {
+        this(focusSession, 0, theme);
+    }
+
+    /**
+     * Creates a session summary panel for the given completed session with current streak and a custom theme
+     *
+     * @param focusSession The completed session
+     * @param currentStreak The current streak count
+     * @param theme Theme providing the color palette
+     */
+    public SessionSummaryPanel(FocusSession focusSession, int currentStreak, Theme theme) {
         super(theme);
 
         this.focusSession = focusSession;
+        this.currentStreak = currentStreak;
 
         createComponents();
         layoutComponents();
@@ -202,7 +219,7 @@ public class SessionSummaryPanel extends BasePanel {
         // Streak update
         boolean qualifies = focusSession.qualifiesForStreak();
         if (qualifies) {
-            streakUpdateLabel = new Label("✨ This session counts toward your streak!");
+            streakUpdateLabel = new Label(String.format("✨ Streak: %d day%s!", currentStreak, currentStreak == 1 ? "" : "s"));
             streakUpdateLabel.setTextFill(getSuccessColor());
         } else {
             streakUpdateLabel = new Label("Reach 80+ score and 30+ min to build your streak");
