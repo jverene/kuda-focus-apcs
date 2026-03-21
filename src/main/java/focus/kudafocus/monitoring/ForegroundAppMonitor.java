@@ -13,6 +13,12 @@ import java.util.Locale;
 public class ForegroundAppMonitor {
 
     /**
+     * Constructs a new ForegroundAppMonitor.
+     */
+    public ForegroundAppMonitor() {
+    }
+
+    /**
      * Retrieves the display name of the application currently in the foreground.
      * Currently supported only on macOS.
      *

@@ -12,6 +12,12 @@ import javafx.scene.paint.Color;
 public abstract class Theme {
 
     /**
+     * Constructs a new Theme.
+     */
+    protected Theme() {
+    }
+
+    /**
      * Retrieves the primary background color for the main panel area.
      *
      * @return The primary background {@link Color}.

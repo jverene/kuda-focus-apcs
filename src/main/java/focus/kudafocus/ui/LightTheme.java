@@ -12,6 +12,13 @@ import javafx.scene.paint.Color;
 public class LightTheme extends Theme {
 
     /**
+     * Constructs a new LightTheme instance.
+     */
+    public LightTheme() {
+        super();
+    }
+
+    /**
      * Retrieves the primary background color for the light theme.
      *
      * @return The primary background color.

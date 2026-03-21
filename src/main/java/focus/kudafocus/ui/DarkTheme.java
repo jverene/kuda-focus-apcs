@@ -12,6 +12,13 @@ import javafx.scene.paint.Color;
 public class DarkTheme extends Theme {
 
     /**
+     * Constructs a new DarkTheme instance.
+     */
+    public DarkTheme() {
+        super();
+    }
+
+    /**
      * Retrieves the primary background color for the dark theme.
      *
      * @return The primary background color.

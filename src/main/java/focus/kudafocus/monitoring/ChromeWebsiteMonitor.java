@@ -15,6 +15,12 @@ import java.util.Locale;
 public class ChromeWebsiteMonitor {
 
     /**
+     * Constructs a new ChromeWebsiteMonitor.
+     */
+    public ChromeWebsiteMonitor() {
+    }
+
+    /**
      * Detects if the frontmost Google Chrome tab is displaying a distracting domain.
      * This check is only performed if the operating system is macOS and Chrome is the
      * active application with a visible window.

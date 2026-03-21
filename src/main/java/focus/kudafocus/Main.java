@@ -31,6 +31,13 @@ import java.util.List;
 public class Main extends Application {
 
     /**
+     * Creates a new Main application instance.
+     */
+    public Main() {
+        super();
+    }
+
+    /**
      * The primary application stage.
      */
     private Stage primaryStage;
