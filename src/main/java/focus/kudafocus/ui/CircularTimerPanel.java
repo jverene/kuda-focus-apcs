@@ -18,52 +18,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Home screen panel with circular timer interface.
+ * Represents the home screen panel featuring a circular timer interface for session duration selection.
  *
- * This panel demonstrates INHERITANCE - it extends BasePanel to inherit
- * common styling and layout properties.
- *
- * Components:
- * - Streak display (top)
- * - Circular progress ring (center) - drag to select time
- * - Time display (center of ring)
- * - START button (center of ring, below time)
- * - App selection button (bottom)
- *
- * User Interaction Flow:
- * 1. User drags around ring perimeter to select duration (0-180 minutes)
- * 2. Time display updates in real-time as they drag
- * 3. User clicks "Select apps to block" to choose blocked apps (TODO Phase 3)
- * 4. User clicks START to begin session
- * 5. Panel transitions to ActiveSessionPanel
+ * This panel extends {@link BasePanel} and allows users to interactively select a focus
+ * session duration by dragging around a circular progress ring. It also displays the current
+ * streak, provides options for selecting blocked applications, and allows toggling between
+ * light and dark themes.
  */
 public class CircularTimerPanel extends BasePanel {
 
     // ===== CALLBACK INTERFACE =====
 
     /**
-     * Callback interface for panel events.
-     * This allows Main.java (or parent controller) to respond to user actions.
+     * Defines the contract for receiving events and interactions from the circular timer panel.
      */
     public interface CircularTimerCallback {
         /**
-         * Called when user clicks START button
+         * Invoked when the user initiates a focus session by clicking the start button.
          *
-         * @param durationMinutes Selected duration in minutes
-         * @param blockedApps List of app names to block
-         * @param blockedWebsites List of website domains to block
+         * @param durationMinutes The selected session duration in minutes.
+         * @param blockedApps The list of application names to be blocked.
+         * @param blockedWebsites The list of website domains to be blocked.
          */
         void onStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites);
 
         /**
-         * Called when user wants to select apps to block
+         * Invoked when the user requests to select applications or websites to block.
          */
         void onSelectApps();
 
         /**
-         * Called when user toggles the light mode button
+         * Invoked when the user toggles the light mode setting.
          *
-         * @param enable true to enable light mode, false to revert to dark mode
+         * @param enable true if light mode should be enabled, false for dark mode.
          */
         void onToggleLightMode(boolean enable);
     }
@@ -71,71 +58,71 @@ public class CircularTimerPanel extends BasePanel {
     // ===== COMPONENTS =====
 
     /**
-     * Streak display label (top)
+     * The label displaying the user's current focus streak.
      */
     private Label streakLabel;
 
     /**
-     * Circular progress ring (for time selection)
+     * The circular progress ring used for session duration selection.
      */
     private CircularProgressRing progressRing;
 
     /**
-     * Time display label (center of ring)
+     * The label displaying the currently selected duration in a time format.
      */
     private Label timeLabel;
 
     /**
-     * START button (center of ring, below time)
+     * The button used to start the focus session.
      */
     private Button startButton;
 
     /**
-     * App selection button (bottom)
+     * The button used to open the application selection interface.
      */
     private Button selectAppsButton;
 
     /**
-     * Status label showing selected apps count
+     * The label displaying the status of selected applications and websites.
      */
     private Label appsStatusLabel;
 
     /**
-     * Light mode toggle button (top-right corner)
+     * The button used to toggle between light and dark themes.
      */
     private Button lightModeButton;
 
     // ===== STATE =====
 
     /**
-     * Current streak count (days)
+     * The current number of consecutive days the user has maintained their streak.
      */
     private int currentStreak = 0;
 
     /**
-     * List of currently selected apps to block
+     * The list of application names currently selected to be blocked.
      */
     private List<String> selectedApps = new ArrayList<>();
 
     /**
-     * List of currently selected websites to block
+     * The list of website domains currently selected to be blocked.
      */
     private List<String> selectedWebsites = new ArrayList<>();
 
     /**
-     * Callback for events
+     * The callback object for notifying user interactions and panel events.
      */
     private CircularTimerCallback callback;
 
     /**
-     * Whether light mode is currently active
+     * Indicates whether light mode is currently the active theme setting.
      */
     private boolean lightModeEnabled = false;
 
     // ===== CONSTRUCTORS =====
 
     /**
-     * Creates the circular timer panel with the default dark theme
+     * Constructs a circular timer panel using the default dark theme.
      */
     public CircularTimerPanel() {
         super();
@@ -146,9 +133,9 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Creates the circular timer panel with a custom theme
+     * Constructs a circular timer panel with the specified theme.
      *
-     * @param theme Theme providing the color palette
+     * @param theme The theme providing the color palette for the panel.
      */
     public CircularTimerPanel(Theme theme) {
         super(theme);
@@ -162,7 +149,7 @@ public class CircularTimerPanel extends BasePanel {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Creates all UI components
+     * Creates and configures all UI components for the panel.
      */
     private void createComponents() {
         // Streak label (top)
@@ -230,7 +217,7 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Arranges components in the layout
+     * Arranges the UI components within the panel layout.
      */
     private void layoutComponents() {
         // Clear any existing children
@@ -276,7 +263,7 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Sets up event handlers for user interactions
+     * Configures event handlers for interactive UI components.
      */
     private void setupEventHandlers() {
         // Update time display when ring selection changes (via callback, not overwriting handlers)
@@ -295,15 +282,13 @@ public class CircularTimerPanel extends BasePanel {
     // ===== EVENT HANDLERS =====
 
     /**
-     * Handles START button click
+     * Handles the interaction for starting a new focus session.
      */
     private void handleStartSession() {
         int minutes = progressRing.getSelectedMinutes();
 
         // Validate duration (must be at least 1 minute)
         if (minutes < 1) {
-            // Could show error message here
-            System.out.println("Please select at least 1 minute");
             return;
         }
 
@@ -314,7 +299,7 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Handles light mode toggle button click
+     * Handles the interaction for toggling the light mode theme.
      */
     private void handleToggleLightMode() {
         lightModeEnabled = !lightModeEnabled;
@@ -324,7 +309,7 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Handles app selection button click
+     * Handles the interaction for opening the application selection interface.
      */
     private void handleSelectApps() {
         if (callback != null) {
@@ -333,7 +318,7 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Updates the time display label based on ring selection
+     * Updates the time display label based on the current ring selection.
      */
     private void updateTimeDisplay() {
         int minutes = progressRing.getSelectedMinutes();
@@ -348,18 +333,18 @@ public class CircularTimerPanel extends BasePanel {
     // ===== PUBLIC METHODS =====
 
     /**
-     * Sets the callback for panel events
+     * Registers a callback for receiving panel interactions and events.
      *
-     * @param callback Callback to receive events
+     * @param callback The callback to be notified of panel events.
      */
     public void setCallback(CircularTimerCallback callback) {
         this.callback = callback;
     }
 
     /**
-     * Updates the streak display
+     * Updates the streak display with the specified number of days.
      *
-     * @param streakDays Number of consecutive days
+     * @param streakDays The number of consecutive days maintained in the streak.
      */
     public void setStreak(int streakDays) {
         this.currentStreak = streakDays;
@@ -372,9 +357,9 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Updates the selected apps list
+     * Updates the list of selected applications to be blocked.
      *
-     * @param apps List of app names
+     * @param apps The list of application names to block.
      */
     public void setSelectedApps(List<String> apps) {
         this.selectedApps = new ArrayList<>(apps);
@@ -382,18 +367,18 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Gets the currently selected apps
+     * Retrieves the list of currently selected applications.
      *
-     * @return List of app names
+     * @return A list of selected application names.
      */
     public List<String> getSelectedApps() {
         return new ArrayList<>(selectedApps);
     }
 
     /**
-     * Updates the selected websites list
+     * Updates the list of selected website domains to be blocked.
      *
-     * @param websites List of website domains
+     * @param websites The list of website domains to block.
      */
     public void setSelectedWebsites(List<String> websites) {
         this.selectedWebsites = new ArrayList<>(websites);
@@ -401,16 +386,16 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Gets the currently selected websites
+     * Retrieves the list of currently selected websites.
      *
-     * @return List of website domains
+     * @return A list of selected website domains.
      */
     public List<String> getSelectedWebsites() {
         return new ArrayList<>(selectedWebsites);
     }
 
     /**
-     * Updates the status label based on selected apps and websites
+     * Updates the status label based on the current selection of apps and websites.
      */
     private void updateStatusLabel() {
         String status;
@@ -435,9 +420,9 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Sets the selected duration in minutes
+     * Sets the selected session duration in minutes and updates the display.
      *
-     * @param minutes Duration in minutes
+     * @param minutes The desired duration in minutes.
      */
     public void setSelectedMinutes(int minutes) {
         progressRing.setSelectedMinutes(minutes);
@@ -445,16 +430,16 @@ public class CircularTimerPanel extends BasePanel {
     }
 
     /**
-     * Gets the selected duration in minutes
+     * Retrieves the currently selected session duration in minutes.
      *
-     * @return Duration in minutes
+     * @return The selected duration in minutes.
      */
     public int getSelectedMinutes() {
         return progressRing.getSelectedMinutes();
     }
 
     /**
-     * Resets the panel to default state
+     * Resets the panel to its default state, including duration and display.
      */
     public void reset() {
         progressRing.reset();

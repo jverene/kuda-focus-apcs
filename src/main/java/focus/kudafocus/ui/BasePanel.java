@@ -7,116 +7,105 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 /**
- * Base panel class demonstrating INHERITANCE in OOP.
+ * Represents the base panel class providing common styling and layout properties for all UI panels.
  *
- * All UI panels in KUDA FOCUS extend this base class to inherit
- * common styling properties and methods. This ensures consistent
- * visual design across the application while allowing specialized
- * panels to add their own unique functionality.
- *
- * Inheritance Benefits:
- * - Code reuse: Common styling logic written once
- * - Consistency: All panels share same design language
- * - Maintainability: Changes to base styling affect all panels
- * - Extensibility: Easy to add new panel types
- *
- * Subclasses: CircularTimerPanel, DashboardPanel, SessionSummaryPanel, etc.
+ * This abstract class serves as the foundation for all specialized panels in the KUDA FOCUS
+ * application, ensuring a consistent visual design and behavior. It demonstrates the use of
+ * inheritance to facilitate code reuse and maintainability across the UI layer.
  */
 public abstract class BasePanel extends VBox {
 
     // ===== THEME =====
 
     /**
-     * Active theme providing the color palette
+     * The active theme providing the color palette for the panel.
      */
     protected Theme theme;
 
     // ===== COLOR PROPERTIES =====
 
     /**
-     * Primary background color for the panel
+     * The primary background color for the panel.
      */
     protected Color primaryColor;
 
     /**
-     * Accent color for interactive elements
+     * The accent color for interactive elements within the panel.
      */
     protected Color accentColor;
 
     /**
-     * Primary text color
+     * The primary text color used for headings and prominent content.
      */
     protected Color textPrimaryColor;
 
     /**
-     * Secondary text color (for less prominent text)
+     * The secondary text color used for less prominent text.
      */
     protected Color textSecondaryColor;
 
     /**
-     * Muted text color (for hints and disabled content)
+     * The muted text color used for hints and disabled content.
      */
     protected Color textMutedColor;
 
     /**
-     * Success color (for positive indicators)
+     * The color indicating success or positive status.
      */
     protected Color successColor;
 
     /**
-     * Warning color (for caution indicators)
+     * The color indicating a warning or caution state.
      */
     protected Color warningColor;
 
     /**
-     * Error color (for negative indicators)
+     * The color indicating an error or negative status.
      */
     protected Color errorColor;
 
     /**
-     * Overlay background color (semi-transparent)
+     * The semi-transparent color used for overlay backgrounds.
      */
     protected Color overlayBackgroundColor;
 
     // ===== TYPOGRAPHY PROPERTIES =====
 
     /**
-     * Title font for headings
+     * The font used for panel titles and headings.
      */
     protected Font titleFont;
 
     /**
-     * Body font for regular text
+     * The font used for regular body text.
      */
     protected Font bodyFont;
 
     // ===== LAYOUT PROPERTIES =====
 
     /**
-     * Standard padding amount
+     * The standard padding amount in pixels applied to the panel.
      */
     protected double standardPadding;
 
     /**
-     * Standard spacing between elements
+     * The standard spacing in pixels between elements within the panel.
      */
     protected double standardSpacing;
 
     // ===== CONSTRUCTORS =====
 
     /**
-     * Creates a new BasePanel with the default dark theme.
-     * Delegates to {@link #BasePanel(Theme)} with a {@link DarkTheme}.
+     * Constructs a new BasePanel using the default dark theme.
      */
     public BasePanel() {
         this(new DarkTheme());
     }
 
     /**
-     * Creates a new BasePanel with the given theme.
-     * Initializes all shared visual properties from the theme and UIConstants.
+     * Constructs a new BasePanel with the specified theme.
      *
-     * @param theme Theme providing the color palette
+     * @param theme The theme providing the color palette and visual properties.
      */
     public BasePanel(Theme theme) {
         super();
@@ -130,7 +119,7 @@ public abstract class BasePanel extends VBox {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Initializes the color scheme from the active theme
+     * Initializes the color scheme based on the active theme.
      */
     private void initializeColors() {
         this.primaryColor = theme.getBackgroundPrimary();
@@ -145,7 +134,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Initializes typography from UIConstants
+     * Initializes the typography settings using defined constants.
      */
     private void initializeTypography() {
         this.titleFont = UIConstants.getTitleFont();
@@ -153,7 +142,7 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Initializes spacing and padding from UIConstants
+     * Initializes the layout spacing and padding using defined constants.
      */
     private void initializeSpacing() {
         this.standardPadding = UIConstants.PADDING_STANDARD;
@@ -163,10 +152,7 @@ public abstract class BasePanel extends VBox {
     // ===== SHARED STYLING METHODS =====
 
     /**
-     * Applies standard styling to this panel.
-     * This method is called automatically during construction.
-     * Subclasses can override to customize, but should call super.applyStandardStyling()
-     * to maintain base styling.
+     * Applies standard styling to the panel, including background, spacing, and alignment.
      */
     protected void applyStandardStyling() {
         // Set background color
@@ -186,10 +172,10 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Converts JavaFX Color to CSS RGB code
+     * Converts a JavaFX Color to a CSS-compatible RGB string.
      *
-     * @param color The Color to convert
-     * @return CSS RGB string (e.g., "rgb(26, 26, 26)")
+     * @param color The Color to convert.
+     * @return A CSS RGB string representation.
      */
     protected String toRGBCode(Color color) {
         return String.format("rgb(%d, %d, %d)",
@@ -199,10 +185,10 @@ public abstract class BasePanel extends VBox {
     }
 
     /**
-     * Converts JavaFX Color to CSS RGBA code with alpha channel
+     * Converts a JavaFX Color to a CSS-compatible RGBA string with an alpha channel.
      *
-     * @param color The Color to convert
-     * @return CSS RGBA string (e.g., "rgba(0, 0, 0, 0.7)")
+     * @param color The Color to convert.
+     * @return A CSS RGBA string representation.
      */
     protected String toRGBACode(Color color) {
         return String.format("rgba(%d, %d, %d, %.2f)",
@@ -215,126 +201,126 @@ public abstract class BasePanel extends VBox {
     // ===== GETTERS =====
 
     /**
-     * Gets the active theme
+     * Retrieves the active theme used by the panel.
      *
-     * @return Active theme
+     * @return The current theme.
      */
     protected Theme getTheme() {
         return theme;
     }
 
     /**
-     * Gets the primary background color
+     * Retrieves the primary background color.
      *
-     * @return Primary color
+     * @return The primary background color.
      */
     protected Color getPrimaryColor() {
         return primaryColor;
     }
 
     /**
-     * Gets the accent color
+     * Retrieves the accent color used for interactive elements.
      *
-     * @return Accent color
+     * @return The accent color.
      */
     protected Color getAccentColor() {
         return accentColor;
     }
 
     /**
-     * Gets the primary text color
+     * Retrieves the primary text color.
      *
-     * @return Primary text color
+     * @return The primary text color.
      */
     protected Color getTextPrimaryColor() {
         return textPrimaryColor;
     }
 
     /**
-     * Gets the secondary text color
+     * Retrieves the secondary text color.
      *
-     * @return Secondary text color
+     * @return The secondary text color.
      */
     protected Color getTextSecondaryColor() {
         return textSecondaryColor;
     }
 
     /**
-     * Gets the muted text color
+     * Retrieves the muted text color.
      *
-     * @return Muted text color
+     * @return The muted text color.
      */
     protected Color getTextMutedColor() {
         return textMutedColor;
     }
 
     /**
-     * Gets the success color
+     * Retrieves the color indicating success.
      *
-     * @return Success color
+     * @return The success color.
      */
     protected Color getSuccessColor() {
         return successColor;
     }
 
     /**
-     * Gets the warning color
+     * Retrieves the color indicating a warning.
      *
-     * @return Warning color
+     * @return The warning color.
      */
     protected Color getWarningColor() {
         return warningColor;
     }
 
     /**
-     * Gets the error color
+     * Retrieves the color indicating an error.
      *
-     * @return Error color
+     * @return The error color.
      */
     protected Color getErrorColor() {
         return errorColor;
     }
 
     /**
-     * Gets the overlay background color
+     * Retrieves the color used for overlay backgrounds.
      *
-     * @return Overlay background color
+     * @return The overlay background color.
      */
     protected Color getOverlayBackgroundColor() {
         return overlayBackgroundColor;
     }
 
     /**
-     * Gets the title font
+     * Retrieves the font used for panel titles.
      *
-     * @return Title font
+     * @return The title font.
      */
     protected Font getTitleFont() {
         return titleFont;
     }
 
     /**
-     * Gets the body font
+     * Retrieves the font used for body text.
      *
-     * @return Body font
+     * @return The body font.
      */
     protected Font getBodyFont() {
         return bodyFont;
     }
 
     /**
-     * Gets the standard padding amount
+     * Retrieves the standard padding amount used by the panel.
      *
-     * @return Standard padding in pixels
+     * @return The standard padding in pixels.
      */
     protected double getStandardPadding() {
         return standardPadding;
     }
 
     /**
-     * Gets the standard spacing amount
+     * Retrieves the standard spacing amount used by the panel.
      *
-     * @return Standard spacing in pixels
+     * @return The standard spacing in pixels.
      */
     protected double getStandardSpacing() {
         return standardSpacing;

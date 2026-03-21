@@ -3,83 +3,81 @@ package focus.kudafocus.ui;
 import javafx.scene.paint.Color;
 
 /**
- * Abstract theme class for KUDA FOCUS UI.
+ * Represents an abstract theme for the KUDA FOCUS user interface.
  *
- * Defines the color palette that all themes must provide.
- * Subclasses implement each accessor to supply a cohesive set of colors,
- * enabling runtime theme switching (e.g., dark mode vs. light mode).
- *
- * Subclasses: DarkTheme, LightTheme
+ * Defines the color palette that all themes must provide. Subclasses implement each 
+ * accessor to supply a cohesive set of colors, enabling runtime theme switching 
+ * between different visual styles such as dark mode and light mode.
  */
 public abstract class Theme {
 
     /**
-     * Primary background color for the main panel area
+     * Retrieves the primary background color for the main panel area.
      *
-     * @return Primary background color
+     * @return The primary background {@link Color}.
      */
     public abstract Color getBackgroundPrimary();
 
     /**
-     * Secondary background color for nested panels and cards
+     * Retrieves the secondary background color for nested panels and cards.
      *
-     * @return Secondary background color
+     * @return The secondary background {@link Color}.
      */
     public abstract Color getBackgroundSecondary();
 
     /**
-     * Accent color for interactive elements and highlights
+     * Retrieves the accent color used for interactive elements and highlights.
      *
-     * @return Accent color
+     * @return The accent {@link Color}.
      */
     public abstract Color getAccentColor();
 
     /**
-     * Primary text color for headings and important content
+     * Retrieves the primary text color for headings and important content.
      *
-     * @return Primary text color
+     * @return The primary text {@link Color}.
      */
     public abstract Color getTextPrimary();
 
     /**
-     * Secondary text color for less prominent content
+     * Retrieves the secondary text color for less prominent content.
      *
-     * @return Secondary text color
+     * @return The secondary text {@link Color}.
      */
     public abstract Color getTextSecondary();
 
     /**
-     * Muted text color for hints and disabled content
+     * Retrieves the muted text color for hints and disabled content.
      *
-     * @return Muted text color
+     * @return The muted text {@link Color}.
      */
     public abstract Color getTextMuted();
 
     /**
-     * Success color for positive indicators (e.g., high focus scores)
+     * Retrieves the success color for positive indicators, such as high focus scores.
      *
-     * @return Success color
+     * @return The success {@link Color}.
      */
     public abstract Color getSuccessColor();
 
     /**
-     * Warning color for caution indicators (e.g., medium focus scores)
+     * Retrieves the warning color for caution indicators, such as medium focus scores.
      *
-     * @return Warning color
+     * @return The warning {@link Color}.
      */
     public abstract Color getWarningColor();
 
     /**
-     * Error color for negative indicators (e.g., low focus scores)
+     * Retrieves the error color for negative indicators, such as low focus scores.
      *
-     * @return Error color
+     * @return The error {@link Color}.
      */
     public abstract Color getErrorColor();
 
     /**
-     * Overlay background color (typically semi-transparent)
+     * Retrieves the overlay background color, which is typically semi-transparent.
      *
-     * @return Overlay background color
+     * @return The overlay background {@link Color}.
      */
     public abstract Color getOverlayBackground();
 }

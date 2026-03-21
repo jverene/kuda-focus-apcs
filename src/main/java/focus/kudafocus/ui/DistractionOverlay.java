@@ -17,40 +17,23 @@ import javafx.geometry.Rectangle2D;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
- * Full-screen distraction overlay that appears when blocked apps are detected.
+ * Represents a full-screen distraction overlay that appears when blocked applications are detected.
  *
- * This overlay serves as a gentle reminder to stay focused when the user
- * opens a blocked application during a focus session.
- *
- * Features:
- * - Semi-transparent dark background (70% opacity)
- * - "Stay Focused!" message
- * - Shows remaining session time
- * - "Return to Focus" button to dismiss
- * - Always on top (blocks interaction with blocked app)
- * - Reappears every 15 seconds if app still open
- *
- * Design Pattern:
- * - Modal dialog (blocks interaction with other windows)
- * - Timer-based reappearance
- * - Records dismissals to the session for scoring
- *
- * Learning Points:
- * - JavaFX Stage and Modality
- * - Transparent/semi-transparent windows
- * - Always-on-top windows
- * - Event handling for dismissal
+ * This overlay serves as a visual reminder to the user to maintain focus when they attempt
+ * to access a blocked application during an active session. It covers the primary screen
+ * with a semi-transparent layer, displays the remaining session time, and provides a
+ * button to return to a focused state.
  */
 public class DistractionOverlay {
 
     // ===== CALLBACK INTERFACE =====
 
     /**
-     * Callback interface for overlay events
+     * Defines the contract for receiving events from the distraction overlay.
      */
     public interface OverlayCallback {
         /**
-         * Called when user dismisses the overlay
+         * Invoked when the user dismisses the overlay to return to their focus session.
          */
         void onDismissed();
     }
@@ -58,85 +41,85 @@ public class DistractionOverlay {
     // ===== COMPONENTS =====
 
     /**
-     * The overlay window (Stage)
+     * The stage representing the overlay window.
      */
     private Stage overlayStage;
 
     /**
-     * Root layout
+     * The root layout container for the overlay components.
      */
     private VBox root;
 
     /**
-     * Main message label
+     * The label displaying the main focus reminder message.
      */
     private Label messageLabel;
 
     /**
-     * App name label
+     * The label displaying the name of the application that triggered the overlay.
      */
     private Label appNameLabel;
 
     /**
-     * Time remaining label
+     * The label displaying the remaining session time in minutes.
      */
     private Label timeRemainingLabel;
 
     /**
-     * Dismiss button
+     * The button used by the user to dismiss the overlay.
      */
     private Button dismissButton;
 
     /**
-     * Warning label
+     * The label providing additional instructions for dismissing the overlay.
      */
     private Label warningLabel;
 
     // ===== STATE =====
 
     /**
-     * The focus session being tracked
+     * The active focus session being monitored.
      */
     private FocusSession focusSession;
 
     /**
-     * Name of the blocked app that triggered this overlay
+     * The name of the blocked application that triggered the appearance of the overlay.
      */
     private String blockedAppName;
 
     /**
-     * Callback for events
+     * The callback object for notifying overlay-related events.
      */
     private OverlayCallback callback;
 
     /**
-     * Active theme providing the color palette
+     * The theme providing the color palette for the overlay.
      */
     private Theme theme;
 
     /**
-     * Whether overlay is currently showing
+     * Indicates whether the overlay is currently visible to the user.
      */
     private boolean showing = false;
 
     // ===== CONSTRUCTORS =====
 
     /**
-     * Creates a distraction overlay with the default dark theme
+     * Constructs a distraction overlay for the specified session and application using the dark theme.
      *
-     * @param focusSession The active focus session
-     * @param blockedAppName Name of the blocked app
+     * @param focusSession The active focus session.
+     * @param blockedAppName The name of the application that triggered the overlay.
      */
     public DistractionOverlay(FocusSession focusSession, String blockedAppName) {
         this(focusSession, blockedAppName, new DarkTheme());
     }
 
     /**
-     * Creates a distraction overlay with a custom theme
+     * Constructs a distraction overlay for the specified session and application using a custom theme.
      *
-     * @param focusSession The active focus session
-     * @param blockedAppName Name of the blocked app
-     * @param theme Theme providing the color palette
+     * @param focusSession The active focus session.
+     * @param blockedAppName The name of the application that triggered the overlay.
+     * @param theme The theme providing the color palette for the overlay.
      */
     public DistractionOverlay(FocusSession focusSession, String blockedAppName, Theme theme) {
         this.focusSession = focusSession;
@@ -149,7 +132,7 @@ public class DistractionOverlay {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Creates the overlay window and components
+     * Initializes the overlay stage, components, and layout.
      */
     private void createOverlay() {
         // Create stage (window)
@@ -180,7 +163,7 @@ public class DistractionOverlay {
     }
 
     /**
-     * Creates all UI components
+     * Creates and configures the UI components for the overlay.
      */
     private void createComponents() {
         // Main message
@@ -231,7 +214,7 @@ public class DistractionOverlay {
     }
 
     /**
-     * Arranges components in the layout
+     * Configures the layout arrangement for the overlay components.
      */
     private void layoutComponents() {
         root = new VBox(UIConstants.SPACING_XL);
@@ -256,7 +239,7 @@ public class DistractionOverlay {
     }
 
     /**
-     * Sets up event handlers
+     * Sets up event handlers for user interactions within the overlay.
      */
     private void setupEventHandlers() {
         // Dismiss button
@@ -271,7 +254,7 @@ public class DistractionOverlay {
     // ===== EVENT HANDLERS =====
 
     /**
-     * Handles dismiss button click
+     * Handles the interaction for dismissing the distraction overlay.
      */
     private void handleDismiss() {
         // Record dismissal in session
@@ -290,7 +273,7 @@ public class DistractionOverlay {
     // ===== PUBLIC METHODS =====
 
     /**
-     * Shows the overlay
+     * Displays the distraction overlay on the screen.
      */
     public void show() {
         if (!showing) {
@@ -301,7 +284,7 @@ public class DistractionOverlay {
     }
 
     /**
-     * Hides the overlay
+     * Hides the distraction overlay from the user's view.
      */
     public void hide() {
         if (showing) {
@@ -311,43 +294,43 @@ public class DistractionOverlay {
     }
 
     /**
-     * Updates the time remaining display
+     * Updates the remaining session time displayed on the overlay.
      *
-     * @param remainingMinutes Minutes remaining in session
+     * @param remainingMinutes The number of minutes remaining in the current session.
      */
     public void updateTimeRemaining(int remainingMinutes) {
         timeRemainingLabel.setText(String.format("%d minutes remaining in your session", remainingMinutes));
     }
 
     /**
-     * Sets the callback for overlay events
+     * Registers a callback for receiving events from the distraction overlay.
      *
-     * @param callback Callback to receive events
+     * @param callback The callback object to be notified of events.
      */
     public void setCallback(OverlayCallback callback) {
         this.callback = callback;
     }
 
     /**
-     * Checks if overlay is currently showing
+     * Indicates whether the distraction overlay is currently visible.
      *
-     * @return true if showing
+     * @return true if the overlay is showing, false otherwise.
      */
     public boolean isShowing() {
         return showing;
     }
 
     /**
-     * Gets the blocked app name
+     * Retrieves the name of the blocked application that triggered the overlay.
      *
-     * @return App name
+     * @return The name of the blocked application.
      */
     public String getBlockedAppName() {
         return blockedAppName;
     }
 
     /**
-     * Closes the overlay permanently (cleanup)
+     * Permanently closes the overlay stage and releases associated resources.
      */
     public void close() {
         if (overlayStage != null) {
@@ -358,7 +341,10 @@ public class DistractionOverlay {
     // ===== UTILITY METHODS =====
 
     /**
-     * Converts JavaFX Color to RGB string
+     * Converts a JavaFX Color to a CSS-compatible RGB string representation.
+     *
+     * @param color The Color object to convert.
+     * @return A string representing the RGB code.
      */
     private String toRGBCode(Color color) {
         return String.format("rgb(%d, %d, %d)",
@@ -368,7 +354,10 @@ public class DistractionOverlay {
     }
 
     /**
-     * Converts JavaFX Color to RGBA string with alpha channel
+     * Converts a JavaFX Color to a CSS-compatible RGBA string with an alpha channel.
+     *
+     * @param color The Color object to convert.
+     * @return A string representing the RGBA code.
      */
     private String toRGBACode(Color color) {
         return String.format("rgba(%d, %d, %d, %.2f)",

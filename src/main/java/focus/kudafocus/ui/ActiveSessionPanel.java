@@ -19,56 +19,41 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Active session panel - displays running focus session with countdown.
+ * Displays a running focus session with a countdown timer and progress indicator.
  *
- * This panel demonstrates INHERITANCE - extends BasePanel for common styling.
+ * This panel extends {@link BasePanel} and provides a visual representation of an active
+ * focus session, including remaining time, blocked applications, and session controls.
  *
- * Components:
- * - Session info label (top) - shows "Focus Session"
- * - Circular progress ring (center) - depletes as time passes
- * - Time remaining display (center of ring)
- * - PAUSE button (bottom)
- * - STOP button (bottom)
- *
- * Functionality:
- * - Countdown timer that updates every second
- * - Progress ring that depletes clockwise
- * - Uses SessionMonitor service to detect blocked apps and websites
- * - Pause/resume capability
- * - Stop with confirmation
- *
- * Learning Points:
- * - Service separation: SessionMonitor handles violation detection
- * - UI panels respond to service callbacks
- * - Decoupled violation detection from UI logic
+ * It utilizes the {@link SessionMonitor} service to detect violations and provides
+ * real-time feedback to the user through a circular progress ring and status labels.
  */
 public class ActiveSessionPanel extends BasePanel {
 
     // ===== CALLBACK INTERFACE =====
 
     /**
-     * Callback interface for session events
+     * Defines the contract for receiving events from an active focus session.
      */
     public interface ActiveSessionCallback {
         /**
-         * Called when session completes naturally (timer reaches 0)
+         * Invoked when a session completes naturally after the timer reaches zero.
          *
-         * @param session The completed session
+         * @param session The focus session that has completed.
          */
         void onSessionComplete(FocusSession session);
 
         /**
-         * Called when user stops session early
+         * Invoked when the user manually stops a session before completion.
          *
-         * @param session The session that was stopped
-         * @param actualDuration Actual duration in seconds
+         * @param session The focus session that was stopped.
+         * @param actualDuration The actual duration of the session in seconds.
          */
         void onSessionStopped(FocusSession session, int actualDuration);
 
         /**
-         * Called when a blocked app is detected (for showing overlay)
+         * Invoked when a blocked application is detected during an active session.
          *
-         * @param appName Name of the blocked app
+         * @param appName The name of the blocked application detected.
          */
         void onViolationDetected(String appName);
     }
@@ -76,83 +61,83 @@ public class ActiveSessionPanel extends BasePanel {
     // ===== COMPONENTS =====
 
     /**
-     * Session info label (top)
+     * The label displaying session information at the top of the panel.
      */
     private Label sessionInfoLabel;
 
     /**
-     * Blocked apps info label
+     * The label displaying information about blocked applications and websites.
      */
     private Label blockedAppsLabel;
 
     /**
-     * Circular progress ring
+     * The circular progress ring representing session completion progress.
      */
     private CircularProgressRing progressRing;
 
     /**
-     * Time remaining display
+     * The label displaying the remaining time in H:MM:SS format.
      */
     private Label timeLabel;
 
     /**
-     * PAUSE/RESUME button
+     * The button used to pause or resume the active session.
      */
     private Button pauseButton;
 
     /**
-     * STOP button
+     * The button used to manually stop the active session.
      */
     private Button stopButton;
 
     /**
-     * Status label (shows "Paused" when paused)
+     * The label indicating the current status, such as when the session is paused.
      */
     private Label statusLabel;
 
     // ===== STATE =====
 
     /**
-     * The focus session being tracked
+     * The focus session currently being tracked and displayed.
      */
     private FocusSession focusSession;
 
     /**
-     * The countdown timer
+     * The countdown timer managing the session duration.
      */
     private Timer timer;
 
     /**
-     * Session monitor service for detecting blocked apps/websites
+     * The service responsible for monitoring active processes and detecting violations.
      */
     private SessionMonitor sessionMonitor;
 
     /**
-     * Callback for events
+     * The callback object for notifying session-related events.
      */
     private ActiveSessionCallback callback;
 
     /**
-     * Whether session is paused
+     * Indicates whether the current session is in a paused state.
      */
     private boolean paused = false;
 
-    // ===== CONSTRUCTOR =====
+    // ===== CONSTRUCTORS =====
 
     /**
-     * Creates an active session panel for the given session with the default dark theme
+     * Constructs an active session panel for the specified session using the default dark theme.
      *
-     * @param focusSession The session to track
+     * @param focusSession The focus session to track and display.
      */
     public ActiveSessionPanel(FocusSession focusSession) {
         this(focusSession, new DarkTheme());
     }
 
     /**
-     * Creates an active session panel for the given session with a custom theme
+     * Constructs an active session panel for the specified session using a custom theme.
      *
-     * @param focusSession The session to track
-     * @param theme Theme providing the color palette
+     * @param focusSession The focus session to track and display.
+     * @param theme The theme providing the color palette for the panel.
      */
     public ActiveSessionPanel(FocusSession focusSession, Theme theme) {
         super(theme);
@@ -168,7 +153,7 @@ public class ActiveSessionPanel extends BasePanel {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Creates all UI components
+     * Creates and configures all UI components for the panel.
      */
     private void createComponents() {
         // Session info label
@@ -239,7 +224,7 @@ public class ActiveSessionPanel extends BasePanel {
     }
 
     /**
-     * Arranges components in the layout
+     * Arranges the UI components within the panel layout.
      */
     private void layoutComponents() {
         this.getChildren().clear();
@@ -273,7 +258,7 @@ public class ActiveSessionPanel extends BasePanel {
     }
 
     /**
-     * Sets up event handlers for buttons
+     * Configures event handlers for interactive UI components.
      */
     private void setupEventHandlers() {
         // PAUSE button
@@ -284,7 +269,7 @@ public class ActiveSessionPanel extends BasePanel {
     }
 
     /**
-     * Initializes and starts the countdown timer
+     * Initializes and starts the session timer and monitor.
      */
     private void initializeTimer() {
         int durationSeconds = focusSession.getPlannedDuration();
@@ -327,7 +312,7 @@ public class ActiveSessionPanel extends BasePanel {
     // ===== EVENT HANDLERS =====
 
     /**
-     * Handles PAUSE/RESUME button click
+     * Handles the interaction for pausing and resuming the session.
      */
     private void handlePauseResume() {
         if (paused) {
@@ -346,12 +331,9 @@ public class ActiveSessionPanel extends BasePanel {
     }
 
     /**
-     * Handles STOP button click
+     * Handles the interaction for stopping the session manually.
      */
     private void handleStop() {
-        // TODO: Show confirmation dialog
-        System.out.println("Stopping session early...");
-
         // Stop timer
         timer.stop();
 
@@ -365,14 +347,9 @@ public class ActiveSessionPanel extends BasePanel {
     }
 
     /**
-     * Handles timer completion
+     * Finalizes the session state when the timer completes naturally.
      */
     private void handleTimerComplete() {
-        System.out.println("Session complete!");
-
-        // Session completed naturally with full duration
-        int actualDuration = focusSession.getPlannedDuration();
-
         // Notify callback
         if (callback != null) {
             callback.onSessionComplete(focusSession);
@@ -380,7 +357,9 @@ public class ActiveSessionPanel extends BasePanel {
     }
 
     /**
-     * Updates the timer display and progress ring
+     * Updates the time display label and progress ring based on remaining seconds.
+     *
+     * @param remainingSeconds The number of seconds remaining in the session.
      */
     private void updateTimerDisplay(int remainingSeconds) {
         // Update time label
@@ -406,7 +385,11 @@ public class ActiveSessionPanel extends BasePanel {
     // ===== HELPER METHODS =====
 
     /**
-     * Builds a descriptive string of blocked apps and websites
+     * Constructs a descriptive string summarizing the blocked applications and websites.
+     *
+     * @param blockedApps The list of blocked application names.
+     * @param blockedWebsites The list of blocked website domains.
+     * @return A formatted string describing the blocked items.
      */
     private String buildBlockedInfo(List<String> blockedApps, List<String> blockedWebsites) {
         List<String> parts = new ArrayList<>();
@@ -428,34 +411,34 @@ public class ActiveSessionPanel extends BasePanel {
     // ===== PUBLIC METHODS =====
 
     /**
-     * Sets the callback for session events
+     * Registers a callback for receiving session lifecycle events.
      *
-     * @param callback Callback to receive events
+     * @param callback The callback to be notified of session events.
      */
     public void setCallback(ActiveSessionCallback callback) {
         this.callback = callback;
     }
 
     /**
-     * Gets the focus session being tracked
+     * Retrieves the focus session currently being tracked.
      *
-     * @return Focus session
+     * @return The active focus session.
      */
     public FocusSession getFocusSession() {
         return focusSession;
     }
 
     /**
-     * Gets the timer
+     * Retrieves the countdown timer managing the session duration.
      *
-     * @return Timer
+     * @return The session timer.
      */
     public Timer getTimer() {
         return timer;
     }
 
     /**
-     * Cleans up resources when panel is closed
+     * Performs necessary cleanup operations when the panel is closed.
      */
     public void cleanup() {
         if (timer != null) {

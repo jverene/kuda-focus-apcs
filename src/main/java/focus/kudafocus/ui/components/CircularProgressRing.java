@@ -8,128 +8,117 @@ import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 
 /**
- * Custom circular progress ring component for time selection and display.
+ * Represents a custom circular progress ring component for time selection and display.
  *
- * This component serves two purposes:
- * 1. TIME SELECTION MODE: User drags around the perimeter to select duration (0-180 min)
- * 2. PROGRESS DISPLAY MODE: Shows countdown progress during active session
+ * This component operates in two modes. In selection mode, the user can drag around the 
+ * perimeter to select a duration from 0 to 180 minutes. In progress display mode, it 
+ * shows the countdown progress during an active focus session.
  *
- * Visual Design:
- * - Background ring (dark gray) - full circle
- * - Progress ring (accent color) - partial arc based on progress/selection
- * - Selection indicator (small circle) - shows drag position in selection mode
- *
- * Interaction:
- * - Mouse drag around perimeter updates selection angle
- * - Angle snaps to nearest minute for clean UX (6 degrees per minute)
- * - 0 degrees = 12 o'clock (top), increases clockwise
- * - 360 degrees (full circle) = 180 minutes (max duration)
- *
- * Key Concepts (for APCS):
- * - Custom JavaFX components (extending Pane)
- * - Mouse event handling
- * - Trigonometry (converting mouse position to angle)
- * - Properties and data binding
+ * Visual design includes a background ring, a progress ring in the accent color, and a 
+ * selection indicator. Interaction is handled via mouse events, with trigonometry used 
+ * to convert mouse positions into angles that snap to the nearest minute.
  */
 public class CircularProgressRing extends Pane {
 
     // ===== CONSTANTS =====
 
     /**
-     * Diameter of the ring
+     * The diameter of the ring.
      */
     private final double diameter;
 
     /**
-     * Radius of the ring (half diameter)
+     * The radius of the ring.
      */
     private final double radius;
 
     /**
-     * Center X coordinate
+     * The center X coordinate of the ring.
      */
     private final double centerX;
 
     /**
-     * Center Y coordinate
+     * The center Y coordinate of the ring.
      */
     private final double centerY;
 
     /**
-     * Stroke width of the ring
+     * The stroke width of the ring.
      */
     private final double strokeWidth;
 
     /**
-     * Degrees per minute (360 degrees / 180 minutes = 2 degrees per minute)
-     * Actually, we'll use 2 degrees per minute for smoother control
+     * The number of degrees per minute of duration.
      */
     private static final double DEGREES_PER_MINUTE = 2.0;
 
     /**
-     * Maximum duration in minutes
+     * The maximum duration in minutes allowed by the component.
      */
     private static final int MAX_DURATION_MINUTES = UIConstants.MAX_DURATION_MINUTES;
 
     // ===== STATE FIELDS =====
 
     /**
-     * Current selection angle in degrees (0-360)
-     * 0 = top (12 o'clock), increases clockwise
+     * The current selection angle in degrees, ranging from 0 to 360.
      */
     private double selectionAngle = 90.0; // Default to 45 minutes (90 degrees)
 
     /**
-     * Progress value for countdown display (0.0 to 1.0)
-     * 0.0 = complete, 1.0 = full time remaining
+     * The progress value for the countdown display, ranging from 0.0 to 1.0.
      */
     private double progress = 1.0;
 
     /**
-     * Whether the ring is in selection mode (draggable) or display mode (countdown)
+     * Indicates whether the ring is in selection mode or progress display mode.
      */
     private boolean selectionMode = true;
 
     /**
-     * Whether to snap angle to nearest minute
+     * Indicates whether the selection angle should snap to the nearest minute.
      */
     private boolean snapToMinutes = true;
 
     /**
-     * Callback for selection changes
+     * The listener for handling selection changes.
      */
     private SelectionChangeListener selectionChangeListener;
 
     /**
-     * Callback interface for selection changes
+     * Provides a callback interface for handling selection change events.
      */
     public interface SelectionChangeListener {
+        /**
+         * Notifies when the selected duration in minutes has changed.
+         *
+         * @param minutes The new duration in minutes.
+         */
         void onSelectionChanged(int minutes);
     }
 
     // ===== VISUAL COMPONENTS =====
 
     /**
-     * Background ring (always full circle, dark gray)
+     * The background arc of the ring.
      */
     private Arc backgroundRing;
 
     /**
-     * Progress/selection ring (partial arc, accent color)
+     * The progress or selection arc of the ring.
      */
     private Arc progressRing;
 
     /**
-     * Selection indicator (small circle on perimeter, only visible in selection mode)
+     * The small circle indicating the current selection position.
      */
     private Circle selectionIndicator;
 
     // ===== CONSTRUCTOR =====
 
     /**
-     * Creates a circular progress ring with specified diameter
+     * Initializes a new circular progress ring with the specified diameter.
      *
-     * @param diameter Diameter of the ring in pixels
+     * @param diameter The diameter of the ring in pixels.
      */
     public CircularProgressRing(double diameter) {
         this.diameter = diameter;
@@ -157,7 +146,7 @@ public class CircularProgressRing extends Pane {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Creates the background and progress rings
+     * Creates and initializes the background and progress rings.
      */
     private void createRings() {
         // Background ring (full circle, dark)
@@ -191,7 +180,7 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Creates the selection indicator (small circle on perimeter)
+     * Creates and initializes the selection indicator component.
      */
     private void createSelectionIndicator() {
         selectionIndicator = new Circle(8.0); // 8px radius
@@ -204,7 +193,7 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Sets up mouse event handlers for drag interaction
+     * Configures the mouse event handlers for user interaction in selection mode.
      */
     private void setupMouseHandlers() {
         // Mouse pressed - start drag
@@ -232,12 +221,11 @@ public class CircularProgressRing extends Pane {
     // ===== INTERACTION METHODS =====
 
     /**
-     * Updates the selection angle based on mouse position.
-     * Uses trigonometry to convert mouse coordinates to angle.
+     * Updates the selection angle based on the provided mouse coordinates.
      *
-     * @param mouseX Mouse X coordinate
-     * @param mouseY Mouse Y coordinate
-     * @param snap Whether to snap to nearest minute
+     * @param mouseX The X coordinate of the mouse.
+     * @param mouseY The Y coordinate of the mouse.
+     * @param snap Indicates whether the angle should snap to the nearest minute increment.
      */
     private void updateAngleFromMouse(double mouseX, double mouseY, boolean snap) {
         // Calculate angle from center to mouse position
@@ -270,7 +258,7 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Updates the visual appearance based on current state
+     * Updates the visual appearance of the component based on its current state.
      */
     private void updateVisuals() {
         if (selectionMode) {
@@ -291,7 +279,7 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Updates the position of the selection indicator on the perimeter
+     * Updates the position of the selection indicator on the perimeter of the ring.
      */
     private void updateIndicatorPosition() {
         // Convert selection angle to position on circle perimeter
@@ -309,9 +297,9 @@ public class CircularProgressRing extends Pane {
     // ===== PUBLIC METHODS =====
 
     /**
-     * Sets the selection angle in degrees (0-360)
+     * Sets the selection angle in degrees.
      *
-     * @param angle Angle in degrees
+     * @param angle The angle in degrees, ranging from 0 to 360.
      */
     public void setSelectionAngle(double angle) {
         this.selectionAngle = Math.max(0.0, Math.min(360.0, angle));
@@ -320,16 +308,16 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Sets the listener for selection changes
+     * Sets the listener for selection change events.
      *
-     * @param listener Listener to be notified when selection changes
+     * @param listener The listener to be notified when the selection changes.
      */
     public void setSelectionChangeListener(SelectionChangeListener listener) {
         this.selectionChangeListener = listener;
     }
 
     /**
-     * Notifies the listener of selection changes
+     * Notifies the registered listener that the selection has changed.
      */
     private void notifySelectionChanged() {
         if (selectionChangeListener != null) {
@@ -338,19 +326,18 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Gets the selection angle in degrees
+     * Retrieves the current selection angle in degrees.
      *
-     * @return Angle in degrees (0-360)
+     * @return The selection angle in degrees.
      */
     public double getSelectionAngle() {
         return selectionAngle;
     }
 
     /**
-     * Sets the selected duration in minutes.
-     * Converts minutes to angle (2 degrees per minute).
+     * Sets the selected duration in minutes and updates the selection angle.
      *
-     * @param minutes Duration in minutes (0-180)
+     * @param minutes The duration in minutes, ranging from 0 to 180.
      */
     public void setSelectedMinutes(int minutes) {
         minutes = Math.max(0, Math.min(MAX_DURATION_MINUTES, minutes));
@@ -358,19 +345,18 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Gets the selected duration in minutes.
-     * Converts angle to minutes (2 degrees per minute).
+     * Retrieves the selected duration in minutes.
      *
-     * @return Duration in minutes (0-180)
+     * @return The duration in minutes.
      */
     public int getSelectedMinutes() {
         return (int) Math.round(selectionAngle / DEGREES_PER_MINUTE);
     }
 
     /**
-     * Sets the progress value (for countdown display mode)
+     * Sets the progress value for the countdown display mode.
      *
-     * @param progress Progress from 0.0 (empty) to 1.0 (full)
+     * @param progress The progress value from 0.0 to 1.0.
      */
     public void setProgress(double progress) {
         this.progress = Math.max(0.0, Math.min(1.0, progress));
@@ -378,9 +364,9 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Gets the current progress value
+     * Retrieves the current progress value.
      *
-     * @return Progress (0.0 to 1.0)
+     * @return The progress value from 0.0 to 1.0.
      */
     public double getProgress() {
         return progress;
@@ -388,9 +374,8 @@ public class CircularProgressRing extends Pane {
 
     /**
      * Enables or disables selection mode.
-     * When disabled, the ring shows progress instead of selection.
      *
-     * @param enabled true for selection mode, false for progress display mode
+     * @param enabled {@code true} to enable selection mode; {@code false} for progress display mode.
      */
     public void setSelectionMode(boolean enabled) {
         this.selectionMode = enabled;
@@ -402,27 +387,27 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Checks if selection mode is enabled
+     * Indicates whether the component is currently in selection mode.
      *
-     * @return true if in selection mode
+     * @return {@code true} if in selection mode; {@code false} otherwise.
      */
     public boolean isSelectionMode() {
         return selectionMode;
     }
 
     /**
-     * Sets whether to snap angle to nearest minute
+     * Configures whether the selection angle should snap to the nearest minute.
      *
-     * @param snap true to snap to minutes
+     * @param snap {@code true} to enable snapping; {@code false} to disable.
      */
     public void setSnapToMinutes(boolean snap) {
         this.snapToMinutes = snap;
     }
 
     /**
-     * Sets the color of the progress ring
+     * Sets the color of the progress ring.
      *
-     * @param color Ring color
+     * @param color The {@link Color} for the ring.
      */
     public void setRingColor(Color color) {
         progressRing.setStroke(color);
@@ -430,11 +415,11 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Updates the ring colors to match the active theme.
+     * Updates the ring colors to match a theme.
      *
-     * @param backgroundRingColor Color for the background ring track
-     * @param accentColor Color for the progress arc and indicator fill
-     * @param textColor Color for the indicator stroke
+     * @param backgroundRingColor The {@link Color} for the background ring track.
+     * @param accentColor The {@link Color} for the progress arc and indicator fill.
+     * @param textColor The {@link Color} for the indicator stroke.
      */
     public void setThemeColors(Color backgroundRingColor, Color accentColor, Color textColor) {
         backgroundRing.setStroke(backgroundRingColor);
@@ -444,7 +429,7 @@ public class CircularProgressRing extends Pane {
     }
 
     /**
-     * Resets the ring to initial state (45 minutes, selection mode)
+     * Resets the ring to its initial state, which is 45 minutes in selection mode.
      */
     public void reset() {
         setSelectionMode(true);

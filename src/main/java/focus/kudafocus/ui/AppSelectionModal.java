@@ -37,58 +37,98 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Modal dialog for selecting blocked apps and websites.
+ * Represents a modal dialog for selecting applications and websites to be blocked during a focus session.
  *
- * Allows users to:
- * - Select from running processes and common distracting apps
- * - Optionally input blocked websites (comma-separated domains)
- * - View status of selections
- * - Auto-refresh running processes while modal is open
+ * This stage allows users to search and select from currently running processes, common
+ * distracting applications, and manually enter website domains. It provides features
+ * for quick selection of common distractions and automatic refreshing of the running
+ * process list.
  */
 public class AppSelectionModal extends Stage {
 
+    /**
+     * A map of common distracting applications and their categories.
+     */
     private static final Map<String, String> COMMON_DISTRACTIONS = createCommonDistractions();
 
+    /**
+     * The monitor used to retrieve currently running processes.
+     */
     private final AppMonitor appMonitor;
+
+    /**
+     * The set of currently selected application names.
+     */
     private final Set<String> selectedApps;
+
+    /**
+     * The list of all available applications for selection.
+     */
     private final ObservableList<String> allApps;
+
+    /**
+     * The container for displaying the list of applications in the UI.
+     */
     private final VBox appListContainer;
+
+    /**
+     * The label displaying the current selection status.
+     */
     private final Label statusLabel;
+
+    /**
+     * The text field for searching and filtering the application list.
+     */
     private final TextField searchField;
+
+    /**
+     * The text area for entering comma-separated website domains.
+     */
     private final TextArea websitesTextArea;
+
+    /**
+     * The theme providing the color palette for the modal.
+     */
     private final Theme theme;
+
+    /**
+     * The timeline used for automatically refreshing the application list.
+     */
     private Timeline refreshTimeline;
 
+    /**
+     * Indicates whether the user confirmed their selections.
+     */
     private boolean confirmed;
 
     /**
-     * Creates an app selection modal with the default dark theme
+     * Constructs an app selection modal with the default dark theme.
      *
-     * @param owner Parent window
-     * @param initiallySelectedApps Previously selected apps
+     * @param owner The parent window for the modal.
+     * @param initiallySelectedApps The list of applications initially selected.
      */
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps) {
         this(owner, initiallySelectedApps, new ArrayList<>(), new DarkTheme());
     }
 
     /**
-     * Creates an app selection modal with the default dark theme
+     * Constructs an app selection modal with the default dark theme.
      *
-     * @param owner Parent window
-     * @param initiallySelectedApps Previously selected apps
-     * @param initiallySelectedWebsites Previously selected websites
+     * @param owner The parent window for the modal.
+     * @param initiallySelectedApps The list of applications initially selected.
+     * @param initiallySelectedWebsites The list of websites initially selected.
      */
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps, List<String> initiallySelectedWebsites) {
         this(owner, initiallySelectedApps, initiallySelectedWebsites, new DarkTheme());
     }
 
     /**
-     * Creates an app selection modal with the given theme
+     * Constructs an app selection modal with the specified theme.
      *
-     * @param owner Parent window
-     * @param initiallySelectedApps Previously selected apps
-     * @param initiallySelectedWebsites Previously selected websites
-     * @param theme Theme providing the color palette
+     * @param owner The parent window for the modal.
+     * @param initiallySelectedApps The list of applications initially selected.
+     * @param initiallySelectedWebsites The list of websites initially selected.
+     * @param theme The theme providing the color palette for the modal.
      */
     public AppSelectionModal(Window owner, List<String> initiallySelectedApps, List<String> initiallySelectedWebsites, Theme theme) {
         this.theme = theme;
@@ -223,10 +263,20 @@ public class AppSelectionModal extends Stage {
         setOnHidden(event -> stopAutoRefresh());
     }
 
+    /**
+     * Checks whether the user confirmed their selections in the modal.
+     *
+     * @return true if selections were confirmed, false otherwise.
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Retrieves the list of currently selected applications.
+     *
+     * @return A sorted list of selected application names.
+     */
     public List<String> getSelectedApps() {
         return selectedApps.stream()
                 .sorted(String::compareToIgnoreCase)
@@ -234,9 +284,9 @@ public class AppSelectionModal extends Stage {
     }
 
     /**
-     * Gets the list of selected blocked websites
+     * Retrieves the list of selected blocked websites.
      *
-     * @return List of website domains (parsed from text area)
+     * @return A list of normalized website domains.
      */
     public List<String> getSelectedWebsites() {
         String text = websitesTextArea.getText().trim();
@@ -252,6 +302,9 @@ public class AppSelectionModal extends Stage {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Loads available applications by combining common distractions and running processes.
+     */
     private void loadAvailableApps() {
         Set<String> appSet = new HashSet<>(COMMON_DISTRACTIONS.keySet());
         // Keep already-selected apps visible even when currently not running.
@@ -271,11 +324,17 @@ public class AppSelectionModal extends Stage {
         allApps.setAll(sortedApps);
     }
 
+    /**
+     * Refreshes the list of available applications and updates the UI.
+     */
     private void refreshAvailableAppsAndRender() {
         loadAvailableApps();
         renderAppList(searchField.getText());
     }
 
+    /**
+     * Starts the automatic refresh cycle for the application list.
+     */
     private void startAutoRefresh() {
         stopAutoRefresh();
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> refreshAvailableAppsAndRender()));
@@ -283,6 +342,9 @@ public class AppSelectionModal extends Stage {
         refreshTimeline.play();
     }
 
+    /**
+     * Stops the automatic refresh cycle for the application list.
+     */
     private void stopAutoRefresh() {
         if (refreshTimeline != null) {
             refreshTimeline.stop();
@@ -290,6 +352,11 @@ public class AppSelectionModal extends Stage {
         }
     }
 
+    /**
+     * Renders the application list in the UI, filtered by the specified query.
+     *
+     * @param query The search query used to filter applications.
+     */
     private void renderAppList(String query) {
         appListContainer.getChildren().clear();
         String normalizedQuery = query == null ? "" : query.toLowerCase(Locale.ROOT).trim();
@@ -341,6 +408,9 @@ public class AppSelectionModal extends Stage {
         }
     }
 
+    /**
+     * Updates the status label with the count of currently selected apps and websites.
+     */
     private void updateStatusLabel() {
         int appCount = selectedApps.size();
         List<String> websites = getSelectedWebsites();
@@ -355,6 +425,12 @@ public class AppSelectionModal extends Stage {
         statusLabel.setText(appStatus + " | " + siteStatus + " selected");
     }
 
+    /**
+     * Determines the category for the specified application.
+     *
+     * @param appName The name of the application.
+     * @return The category name, or "Running App" if unknown.
+     */
     private String getCategory(String appName) {
         String category = COMMON_DISTRACTIONS.get(appName);
         if (category != null) {
@@ -363,6 +439,12 @@ public class AppSelectionModal extends Stage {
         return "Running App";
     }
 
+    /**
+     * Converts a JavaFX Color to a CSS-compatible RGB string.
+     *
+     * @param color The Color to convert.
+     * @return A string representing the RGB code.
+     */
     private String toRGBCode(javafx.scene.paint.Color color) {
         return String.format("rgb(%d, %d, %d)",
                 (int) (color.getRed() * 255),
@@ -370,6 +452,11 @@ public class AppSelectionModal extends Stage {
                 (int) (color.getBlue() * 255));
     }
 
+    /**
+     * Creates and returns a map of common distracting applications and their categories.
+     *
+     * @return A map containing common distracting applications.
+     */
     private static Map<String, String> createCommonDistractions() {
         Map<String, String> apps = new LinkedHashMap<>();
         apps.put("Discord", "Social");

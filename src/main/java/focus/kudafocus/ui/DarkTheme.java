@@ -3,68 +3,109 @@ package focus.kudafocus.ui;
 import javafx.scene.paint.Color;
 
 /**
- * Dark mode theme for KUDA FOCUS UI.
+ * Represents the dark mode theme for the KUDA FOCUS user interface.
  *
- * Default theme using colors from UIConstants.
- * Provides a dark, minimalist aesthetic suited for focus sessions.
+ * This theme provides a dark, minimalist aesthetic designed to minimize distractions
+ * during focus sessions. It utilizes color constants defined in {@link UIConstants}
+ * to ensure consistency across the application.
  */
 public class DarkTheme extends Theme {
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the primary background color for the dark theme.
+     *
+     * @return The primary background color.
+     */
     @Override
     public Color getBackgroundPrimary() {
         return UIConstants.BACKGROUND_PRIMARY;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the secondary background color for the dark theme.
+     *
+     * @return The secondary background color.
+     */
     @Override
     public Color getBackgroundSecondary() {
         return UIConstants.BACKGROUND_SECONDARY;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the accent color for the dark theme.
+     *
+     * @return The accent color.
+     */
     @Override
     public Color getAccentColor() {
         return UIConstants.ACCENT_COLOR;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the primary text color for the dark theme.
+     *
+     * @return The primary text color.
+     */
     @Override
     public Color getTextPrimary() {
         return UIConstants.TEXT_PRIMARY;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the secondary text color for the dark theme.
+     *
+     * @return The secondary text color.
+     */
     @Override
     public Color getTextSecondary() {
         return UIConstants.TEXT_SECONDARY;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the muted text color for the dark theme.
+     *
+     * @return The muted text color.
+     */
     @Override
     public Color getTextMuted() {
         return UIConstants.TEXT_MUTED;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the success indicator color for the dark theme.
+     *
+     * @return The success color.
+     */
     @Override
     public Color getSuccessColor() {
         return UIConstants.SUCCESS_COLOR;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the warning indicator color for the dark theme.
+     *
+     * @return The warning color.
+     */
     @Override
     public Color getWarningColor() {
         return UIConstants.WARNING_COLOR;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the error indicator color for the dark theme.
+     *
+     * @return The error color.
+     */
     @Override
     public Color getErrorColor() {
         return UIConstants.DANGER_COLOR;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Retrieves the overlay background color for the dark theme.
+     *
+     * @return The overlay background color.
+     */
     @Override
     public Color getOverlayBackground() {
         return UIConstants.OVERLAY_BACKGROUND;

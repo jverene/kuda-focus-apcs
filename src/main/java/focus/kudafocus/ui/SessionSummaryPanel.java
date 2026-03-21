@@ -13,37 +13,29 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.feather.Feather;
 
 /**
- * Session summary panel - displays results after a focus session completes.
+ * Represents the session summary panel that displays results after a focus session completes.
  *
- * This panel demonstrates INHERITANCE - extends BasePanel for common styling.
+ * Extends the {@link BasePanel} for common styling. This panel displays the completion status, 
+ * a color-coded focus score, session statistics including duration and violations, and the most 
+ * distracting application identified during the session.
  *
- * Components:
- * - Completion message (top)
- * - Focus score (LARGE, color-coded)
- * - Session statistics (duration, violations, etc.)
- * - Most distracting app
- * - CONTINUE button (returns to home)
- *
- * Focus Score Color Coding:
- * - 80-100: Green (SUCCESS_COLOR) - Excellent focus!
- * - 50-79: Yellow (WARNING_COLOR) - Good effort, room for improvement
- * - 0-49: Red (DANGER_COLOR) - Many distractions detected
- *
- * Learning Points:
- * - Conditional styling based on data
- * - Formatting and presenting statistics
- * - Data-driven UI updates
+ * The focus score is color-coded as follows:
+ * <ul>
+ *   <li>80-100: Green (SUCCESS_COLOR) - Indicates excellent focus.</li>
+ *   <li>50-79: Yellow (WARNING_COLOR) - Indicates good effort with room for improvement.</li>
+ *   <li>0-49: Red (DANGER_COLOR) - Indicates many distractions were detected.</li>
+ * </ul>
  */
 public class SessionSummaryPanel extends BasePanel {
 
     // ===== CALLBACK INTERFACE =====
 
     /**
-     * Callback interface for panel events
+     * Provides a callback interface for handling panel events.
      */
     public interface SummaryCallback {
         /**
-         * Called when user clicks CONTINUE to return to home screen
+         * Handles the event when the user clicks CONTINUE to return to the home screen.
          */
         void onContinue();
     }
@@ -51,94 +43,94 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== COMPONENTS =====
 
     /**
-     * Completion message label
+     * The label for displaying the completion message.
      */
     private Label completionLabel;
 
     /**
-     * Focus score label (large, color-coded)
+     * The label for displaying the focus score.
      */
     private Label scoreLabel;
 
     /**
-     * Score description label
+     * The label for displaying the score description.
      */
     private Label scoreDescriptionLabel;
 
     /**
-     * Duration label
+     * The label for displaying the session duration.
      */
     private Label durationLabel;
 
     /**
-     * Violations label
+     * The label for displaying the number of violations.
      */
     private Label violationsLabel;
 
     /**
-     * Dismissals label
+     * The label for displaying the number of dismissals.
      */
     private Label dismissalsLabel;
 
     /**
-     * Most distracting app label
+     * The label for displaying the most distracting application.
      */
     private Label mostDistractingLabel;
 
     /**
-     * Streak update label
+     * The label for displaying streak updates.
      */
     private Label streakUpdateLabel;
 
     /**
-     * CONTINUE button
+     * The button used to continue to the next screen.
      */
     private Button continueButton;
 
     // ===== STATE =====
 
     /**
-     * The completed focus session
+     * The focus session associated with this summary.
      */
     private FocusSession focusSession;
 
     /**
-     * Current streak count
+     * The current streak count.
      */
     private int currentStreak;
 
     /**
-     * Callback for events
+     * The callback for handling panel events.
      */
     private SummaryCallback callback;
 
     // ===== CONSTRUCTOR =====
 
     /**
-     * Creates a session summary panel for the given completed session with the default dark theme
+     * Initializes a new session summary panel for the specified focus session with the default dark theme.
      *
-     * @param focusSession The completed session
+     * @param focusSession The completed focus session to summarize.
      */
     public SessionSummaryPanel(FocusSession focusSession) {
         this(focusSession, 0, new DarkTheme());
     }
 
     /**
-     * Creates a session summary panel for the given completed session with a custom theme
+     * Initializes a new session summary panel for the specified focus session with a custom theme.
      *
-     * @param focusSession The completed session
-     * @param theme Theme providing the color palette
+     * @param focusSession The completed focus session to summarize.
+     * @param theme The theme providing the color palette.
      */
     public SessionSummaryPanel(FocusSession focusSession, Theme theme) {
         this(focusSession, 0, theme);
     }
 
     /**
-     * Creates a session summary panel for the given completed session with current streak and a custom theme
+     * Initializes a new session summary panel for the specified focus session, current streak, and custom theme.
      *
-     * @param focusSession The completed session
-     * @param currentStreak The current streak count
-     * @param theme Theme providing the color palette
+     * @param focusSession The completed focus session to summarize.
+     * @param currentStreak The current streak count.
+     * @param theme The theme providing the color palette.
      */
     public SessionSummaryPanel(FocusSession focusSession, int currentStreak, Theme theme) {
         super(theme);
@@ -154,7 +146,7 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Creates all UI components
+     * Creates and initializes all UI components for the panel.
      */
     private void createComponents() {
         // Completion message
@@ -255,7 +247,7 @@ public class SessionSummaryPanel extends BasePanel {
     }
 
     /**
-     * Arranges components in the layout
+     * Arranges the UI components in the panel layout.
      */
     private void layoutComponents() {
         this.getChildren().clear();
@@ -308,7 +300,7 @@ public class SessionSummaryPanel extends BasePanel {
     }
 
     /**
-     * Sets up event handlers
+     * Configures the event handlers for the UI components.
      */
     private void setupEventHandlers() {
         continueButton.setOnAction(event -> handleContinue());
@@ -317,7 +309,7 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== EVENT HANDLERS =====
 
     /**
-     * Handles CONTINUE button click
+     * Handles the logic when the CONTINUE button is clicked.
      */
     private void handleContinue() {
         if (callback != null) {
@@ -328,10 +320,10 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== UTILITY METHODS =====
 
     /**
-     * Gets the color for a given score
+     * Retrieves the color associated with a given focus score.
      *
-     * @param score Focus score (0-100)
-     * @return Color for the score
+     * @param score The focus score ranging from 0 to 100.
+     * @return The {@link Color} corresponding to the score.
      */
     private Color getScoreColor(int score) {
         if (score >= UIConstants.MIN_STREAK_SCORE) {
@@ -344,10 +336,10 @@ public class SessionSummaryPanel extends BasePanel {
     }
 
     /**
-     * Gets a description for a given score
+     * Retrieves the description text for a given focus score.
      *
-     * @param score Focus score (0-100)
-     * @return Description text
+     * @param score The focus score ranging from 0 to 100.
+     * @return A {@link String} describing the focus level.
      */
     private String getScoreDescription(int score) {
         if (score >= 95) {
@@ -368,18 +360,18 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== PUBLIC METHODS =====
 
     /**
-     * Sets the callback for panel events
+     * Sets the callback for handling panel events.
      *
-     * @param callback Callback to receive events
+     * @param callback The callback implementation to receive events.
      */
     public void setCallback(SummaryCallback callback) {
         this.callback = callback;
     }
 
     /**
-     * Gets the focus session
+     * Retrieves the focus session summarized by this panel.
      *
-     * @return Focus session
+     * @return The {@link FocusSession} instance.
      */
     public FocusSession getFocusSession() {
         return focusSession;

@@ -5,132 +5,146 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 /**
- * UI design constants for KUDA FOCUS application.
- * Centralizes all colors, fonts, sizes, and spacing for consistent minimalist design.
+ * Centralizes UI design constants for the KUDA FOCUS application.
+ *
+ * This class provides a single source for colors, fonts, sizing, and spacing to ensure 
+ * a consistent visual experience throughout the user interface.
  */
 public class UIConstants {
 
     // ===== COLOR SCHEME =====
 
     /**
-     * Primary background color - dark for minimalist aesthetic
+     * The primary background color, providing a dark minimalist aesthetic.
      */
     public static final Color BACKGROUND_PRIMARY = Color.rgb(26, 26, 26);
 
     /**
-     * Secondary background color - slightly lighter for panels
+     * The secondary background color, typically used for panels and cards.
      */
     public static final Color BACKGROUND_SECONDARY = Color.rgb(35, 35, 35);
 
     /**
-     * Accent color for interactive elements and progress ring
+     * The accent color used for interactive elements and the progress ring.
      */
     public static final Color ACCENT_COLOR = Color.rgb(88, 166, 255);
 
     /**
-     * Text color - primary (white)
+     * The primary text color.
      */
     public static final Color TEXT_PRIMARY = Color.rgb(255, 255, 255);
 
     /**
-     * Text color - secondary (light gray)
+     * The secondary text color.
      */
     public static final Color TEXT_SECONDARY = Color.rgb(180, 180, 180);
 
     /**
-     * Text color - muted (dark gray for less important info)
+     * The muted text color, used for less important information.
      */
     public static final Color TEXT_MUTED = Color.rgb(120, 120, 120);
 
     /**
-     * Success color (for high focus scores)
+     * The success color, used for high focus scores.
      */
     public static final Color SUCCESS_COLOR = Color.rgb(76, 217, 100);
 
     /**
-     * Warning color (for medium focus scores)
+     * The warning color, used for medium focus scores.
      */
     public static final Color WARNING_COLOR = Color.rgb(255, 204, 0);
 
     /**
-     * Error/danger color (for low focus scores)
+     * The error/danger color, used for low focus scores.
      */
     public static final Color DANGER_COLOR = Color.rgb(255, 69, 58);
 
     /**
-     * Overlay background color (semi-transparent dark)
+     * The overlay background color, which is semi-transparent.
      */
     public static final Color OVERLAY_BACKGROUND = Color.rgb(0, 0, 0, 0.7);
 
     // ===== TYPOGRAPHY =====
 
     /**
-     * Title font size (large headings)
+     * The title font size for large headings.
      */
     public static final double FONT_SIZE_TITLE = 48.0;
 
     /**
-     * Large display font size (for timer display)
+     * The large display font size, used for the timer.
      */
     public static final double FONT_SIZE_DISPLAY = 64.0;
 
     /**
-     * Heading font size
+     * The font size for headings.
      */
     public static final double FONT_SIZE_HEADING = 28.0;
 
     /**
-     * Body text font size
+     * The font size for body text.
      */
     public static final double FONT_SIZE_BODY = 16.0;
 
     /**
-     * Small text font size (labels, hints)
+     * The font size for small labels and hints.
      */
     public static final double FONT_SIZE_SMALL = 14.0;
 
     /**
-     * Tiny text font size (footnotes)
+     * The font size for tiny text such as footnotes.
      */
     public static final double FONT_SIZE_TINY = 12.0;
 
     /**
-     * Get display font (for large timer numbers)
+     * Retrieves the display font used for the large timer display.
+     *
+     * @return The display {@link Font}.
      */
     public static Font getDisplayFont() {
         return Font.font("System", FontWeight.LIGHT, FONT_SIZE_DISPLAY);
     }
 
     /**
-     * Get title font
+     * Retrieves the title font.
+     *
+     * @return The title {@link Font}.
      */
     public static Font getTitleFont() {
         return Font.font("System", FontWeight.BOLD, FONT_SIZE_TITLE);
     }
 
     /**
-     * Get heading font
+     * Retrieves the heading font.
+     *
+     * @return The heading {@link Font}.
      */
     public static Font getHeadingFont() {
         return Font.font("System", FontWeight.SEMI_BOLD, FONT_SIZE_HEADING);
     }
 
     /**
-     * Get body font
+     * Retrieves the body font.
+     *
+     * @return The body {@link Font}.
      */
     public static Font getBodyFont() {
         return Font.font("System", FontWeight.NORMAL, FONT_SIZE_BODY);
     }
 
     /**
-     * Get small font
+     * Retrieves the small font.
+     *
+     * @return The small {@link Font}.
      */
     public static Font getSmallFont() {
         return Font.font("System", FontWeight.NORMAL, FONT_SIZE_SMALL);
     }
 
     /**
-     * Get tiny font
+     * Retrieves the tiny font.
+     *
+     * @return The tiny {@link Font}.
      */
     public static Font getTinyFont() {
         return Font.font("System", FontWeight.NORMAL, FONT_SIZE_TINY);
@@ -139,139 +153,143 @@ public class UIConstants {
     // ===== SIZING =====
 
     /**
-     * Standard window width
+     * The standard window width.
      */
     public static final double WINDOW_WIDTH = 800.0;
 
     /**
-     * Standard window height
+     * The standard window height.
      */
     public static final double WINDOW_HEIGHT = 600.0;
 
     /**
-     * Circular timer ring diameter
+     * The diameter of the circular timer ring.
      */
     public static final double TIMER_RING_DIAMETER = 400.0;
 
     /**
-     * Timer ring stroke width
+     * The stroke width of the timer ring.
      */
     public static final double TIMER_RING_STROKE_WIDTH = 12.0;
 
     /**
-     * Button height
+     * The standard button height.
      */
     public static final double BUTTON_HEIGHT = 50.0;
 
     /**
-     * Button minimum width
+     * The minimum button width.
      */
     public static final double BUTTON_MIN_WIDTH = 120.0;
 
     // ===== SPACING =====
 
     /**
-     * Extra small spacing
+     * Extra small spacing increment.
      */
     public static final double SPACING_XS = 4.0;
 
     /**
-     * Small spacing
+     * Small spacing increment.
      */
     public static final double SPACING_SM = 8.0;
 
     /**
-     * Medium spacing (standard)
+     * Medium/standard spacing increment.
      */
     public static final double SPACING_MD = 16.0;
 
     /**
-     * Large spacing
+     * Large spacing increment.
      */
     public static final double SPACING_LG = 24.0;
 
     /**
-     * Extra large spacing
+     * Extra large spacing increment.
      */
     public static final double SPACING_XL = 32.0;
 
     /**
-     * Standard padding
+     * The standard padding size.
      */
     public static final double PADDING_STANDARD = 20.0;
 
     // ===== TIMING =====
 
     /**
-     * Maximum focus session duration in minutes (3 hours)
+     * The maximum focus session duration in minutes (3 hours).
      */
     public static final int MAX_DURATION_MINUTES = 180;
 
     /**
-     * Minimum qualifying session duration for streaks (30 minutes)
+     * The minimum duration required for a session to qualify for a streak.
      */
     public static final int MIN_STREAK_DURATION_MINUTES = 30;
 
     /**
-     * Minimum focus score for streak qualification
+     * The minimum focus score required to qualify for a streak.
      */
     public static final int MIN_STREAK_SCORE = 80;
 
     /**
-     * Overlay reappearance interval in seconds
+     * The interval at which the overlay reappears.
      */
     public static final int OVERLAY_REAPPEAR_SECONDS = 15;
 
     /**
-     * Timer update interval in milliseconds
+     * The interval for timer updates in milliseconds.
      */
     public static final int TIMER_UPDATE_INTERVAL_MS = 100;
 
     /**
-     * Process monitoring interval in milliseconds
+     * The interval for process monitoring in milliseconds.
      */
     public static final int MONITORING_INTERVAL_MS = 2000;
 
     // ===== FOCUS SCORE CONSTANTS =====
 
     /**
-     * Base focus score
+     * The base focus score from which penalties are subtracted.
      */
     public static final int SCORE_BASE = 100;
 
     /**
-     * Penalty per violation occurrence
+     * The penalty points deducted for each violation.
      */
     public static final int SCORE_VIOLATION_PENALTY = 5;
 
     /**
-     * Penalty per overlay dismissal
+     * The penalty points deducted for each overlay dismissal.
      */
     public static final int SCORE_DISMISSAL_PENALTY = 2;
 
     /**
-     * Penalty per minute spent on blocked apps
+     * The penalty points deducted for each minute spent on blocked apps.
      */
     public static final int SCORE_TIME_PENALTY_PER_MINUTE = 1;
 
     // ===== ANIMATION =====
 
     /**
-     * Standard animation duration in milliseconds
+     * The standard animation duration in milliseconds.
      */
     public static final int ANIMATION_DURATION_MS = 300;
 
     /**
-     * Fast animation duration in milliseconds
+     * The duration for fast animations in milliseconds.
      */
     public static final int ANIMATION_FAST_MS = 150;
 
     /**
-     * Slow animation duration in milliseconds
+     * The duration for slow animations in milliseconds.
      */
     public static final int ANIMATION_SLOW_MS = 600;
 
-    // Private constructor to prevent instantiation
+    /**
+     * Private constructor to prevent instantiation.
+     *
+     * @throws AssertionError if instantiation is attempted.
+     */
     private UIConstants() {
         throw new AssertionError("Cannot instantiate UIConstants");
     }
