@@ -95,28 +95,59 @@ public class ProcessInfo {
 
     // ===== SETTERS =====
 
+    /**
+     * Updates the process name.
+     *
+     * @param processName The new process name.
+     */
     public void setProcessName(String processName) {
         this.processName = processName;
     }
 
+    /**
+     * Updates the display name.
+     *
+     * @param displayName The new display name.
+     */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
+    /**
+     * Updates the process ID.
+     *
+     * @param pid The new process ID.
+     */
     public void setPid(int pid) {
         this.pid = pid;
     }
 
+    /**
+     * Updates the running status of the process.
+     *
+     * @param running {@code true} if the process is running; {@code false} otherwise.
+     */
     public void setRunning(boolean running) {
         this.running = running;
     }
 
+    /**
+     * Returns a string representation of the process information.
+     *
+     * @return A formatted string containing process details.
+     */
     @Override
     public String toString() {
         return String.format("ProcessInfo{name='%s', display='%s', pid=%d}",
                 processName, displayName, pid);
     }
 
+    /**
+     * Compares this process info with another object for equality.
+     *
+     * @param obj The object to compare with.
+     * @return {@code true} if both objects represent the same process; {@code false} otherwise.
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -126,6 +157,11 @@ public class ProcessInfo {
                 processName.equals(other.processName);
     }
 
+    /**
+     * Returns the hash code for this process info.
+     *
+     * @return The calculated hash code.
+     */
     @Override
     public int hashCode() {
         return processName.hashCode() * 31 + pid;

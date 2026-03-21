@@ -5,14 +5,18 @@ import java.io.InputStreamReader;
 import java.util.Locale;
 
 /**
- * Reads the current frontmost application.
+ * A monitor that identifies the application currently in the foreground.
+ *
+ * This class provides methods to retrieve the name of the application that has
+ * the current focus on the user's desktop.
  */
 public class ForegroundAppMonitor {
 
     /**
-     * Gets the frontmost application display name.
+     * Retrieves the display name of the application currently in the foreground.
+     * Currently supported only on macOS.
      *
-     * @return Frontmost app name, or null if unavailable/unsupported
+     * @return The name of the frontmost application, or {@code null} if unavailable or unsupported.
      */
     public String getFrontmostApplication() {
         String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
@@ -25,6 +29,12 @@ public class ForegroundAppMonitor {
         );
     }
 
+    /**
+     * Executes an AppleScript command and returns its output.
+     *
+     * @param script The AppleScript command to execute.
+     * @return The trimmed output of the script, or {@code null} if execution fails.
+     */
     private String runAppleScript(String script) {
         try {
             Process process = new ProcessBuilder("osascript", "-e", script).start();

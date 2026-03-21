@@ -27,6 +27,9 @@ import java.util.Map;
  * allowing the session to be the source of truth for monitoring state.
  */
 public class SessionMonitor {
+    /**
+     * A map of common application names to their standardized aliases for consistent matching.
+     */
     private static final Map<String, String> APP_NAME_ALIASES = Map.ofEntries(
             Map.entry("google chrome", "chrome"),
             Map.entry("microsoft edge", "edge"),
@@ -35,18 +38,18 @@ public class SessionMonitor {
     );
 
     /**
-     * Callback interface for monitoring events
+     * Callback interface for monitoring events.
      */
     public interface SessionMonitorCallback {
         /**
-         * Called when a violation is detected
+         * Called when a violation is detected.
          *
          * @param appName Name of the blocked app/website that triggered violation
          */
         void onViolationDetected(String appName);
 
         /**
-         * Called when a violation ends
+         * Called when a violation ends.
          */
         void onViolationEnded();
     }
@@ -54,74 +57,78 @@ public class SessionMonitor {
     // ===== MONITORING INTERVALS =====
 
     /**
-     * How often to check running processes (for blocked apps)
+     * How often to check running processes (for blocked apps).
      */
     private static final int APP_CHECK_INTERVAL_SECONDS = 1;
 
     /**
-     * How often to check Chrome active tab (for blocked websites)
+     * How often to check Chrome active tab (for blocked websites).
      */
     private static final int WEBSITE_CHECK_INTERVAL_SECONDS = 5;
 
     /**
-     * Minimum gap before re-triggering overlay for same violation
+     * Minimum gap before re-triggering overlay for same violation.
      */
     private static final int OVERLAY_RETRIGGER_INTERVAL_SECONDS = UIConstants.OVERLAY_REAPPEAR_SECONDS;
 
     // ===== MONITORS =====
 
     /**
-     * Process monitor (platform-specific)
+     * Process monitor (platform-specific).
      */
     private final AppMonitor appMonitor;
 
     /**
-     * Foreground application monitor (for checking which app is frontmost)
+     * Foreground application monitor (for checking which app is frontmost).
      */
     private final ForegroundAppMonitor foregroundMonitor;
 
     /**
-     * Chrome website monitor
+     * Chrome website monitor.
      */
     private final ChromeWebsiteMonitor websiteMonitor;
 
     /**
-     * The session being monitored
+     * The session being monitored.
      */
     private final FocusSession session;
 
     /**
-     * Callback for violations
+     * Callback for violations.
      */
     private final SessionMonitorCallback callback;
 
     // ===== STATE =====
 
     /**
-     * Timeline that drives monitoring
+     * Timeline that drives monitoring.
      */
     private Timeline monitoringTimeline;
 
     /**
-     * Elapsed seconds since session started (synced with check)
+     * Elapsed seconds since session started (synced with check).
      */
     private int elapsedSeconds = 0;
 
     /**
-     * Last time overlay was triggered for current violation type
+     * Last time overlay was triggered for current app violation.
      */
     private int lastAppOverlayTriggerSecond = -OVERLAY_RETRIGGER_INTERVAL_SECONDS;
+
+    /**
+     * Last time overlay was triggered for current website violation.
+     */
     private int lastWebsiteOverlayTriggerSecond = -OVERLAY_RETRIGGER_INTERVAL_SECONDS;
 
     /**
-     * Whether this monitor is currently running
+     * Whether this monitor is currently running.
      */
     private boolean running = false;
 
     // ===== CONSTRUCTOR =====
 
     /**
-     * Creates a session monitor for the given session
+     * Creates a session monitor for the given session.
      *
      * @param session The focus session to monitor
      * @param callback Callback for violation events
@@ -133,8 +140,14 @@ public class SessionMonitor {
              new ChromeWebsiteMonitor());
     }
 
-    /*
+    /**
      * Package-private constructor for testing with custom monitors.
+     *
+     * @param session The focus session to monitor
+     * @param callback Callback for violation events
+     * @param appMonitor The application monitor implementation
+     * @param foregroundMonitor The foreground application monitor implementation
+     * @param websiteMonitor The website monitor implementation
      */
     SessionMonitor(FocusSession session,
                    SessionMonitorCallback callback,
@@ -151,7 +164,7 @@ public class SessionMonitor {
     // ===== LIFECYCLE METHODS =====
 
     /**
-     * Starts the monitoring timeline
+     * Starts the monitoring timeline.
      */
     public void start() {
         if (running) {
@@ -167,12 +180,10 @@ public class SessionMonitor {
         );
         monitoringTimeline.setCycleCount(Timeline.INDEFINITE);
         monitoringTimeline.play();
-
-        System.out.println("[SessionMonitor] Started monitoring session");
     }
 
     /**
-     * Stops the monitoring timeline
+     * Stops the monitoring timeline.
      */
     public void stop() {
         if (!running || monitoringTimeline == null) {
@@ -190,14 +201,12 @@ public class SessionMonitor {
                 callback.onViolationEnded();
             }
         }
-
-        System.out.println("[SessionMonitor] Stopped monitoring session");
     }
 
     // ===== TIMER TICK HANDLER =====
 
     /**
-     * Called every second while monitoring is running
+     * Called every second while monitoring is running.
      */
     private void onTimerTick() {
         elapsedSeconds++;
@@ -214,8 +223,8 @@ public class SessionMonitor {
         // If something was active, it will be ended in the check methods
     }
 
-    /*
-     * Package-private helper for unit tests to simulate a single tick
+    /**
+     * Package-private helper for unit tests to simulate a single tick.
      */
     void tickOnce() {
         onTimerTick();
@@ -224,19 +233,15 @@ public class SessionMonitor {
     // ===== VIOLATION CHECKING =====
 
     /**
-     * Checks if any blocked apps are currently running
+     * Checks if any blocked apps are currently running.
      */
     private void checkAppViolations() {
         List<String> blockedApps = session.getBlockedApps();
         String frontApp = foregroundMonitor.getFrontmostApplication();
-        System.out.println("[DEBUG] elapsed=" + elapsedSeconds + " frontmost=" + frontApp + " blocked=" + blockedApps);
         if (blockedApps.isEmpty()) {
             clearAppViolationIfActive();
             return;
         }
-
-        // Determine the current frontmost application via foreground monitor
-        System.out.println("[SessionMonitor] frontmost app = " + frontApp);
 
         String matchedApp = matchFrontmostBlockedApp(frontApp, blockedApps);
 
@@ -258,7 +263,7 @@ public class SessionMonitor {
     }
 
     /**
-     * Checks if blocked websites are currently active in Chrome
+     * Checks if blocked websites are currently active in Chrome.
      */
     private void checkWebsiteViolations() {
         List<String> blockedWebsites = session.getBlockedWebsites();
@@ -269,8 +274,6 @@ public class SessionMonitor {
 
         // Use ChromeWebsiteMonitor to check active tab
         String matchedDomain = websiteMonitor.detectDistractingDomain(blockedWebsites);
-
-        System.out.println("[SessionMonitor] Checking websites: " + blockedWebsites + " -> matched: " + matchedDomain);
 
         if (matchedDomain != null) {
             // Found violation
@@ -293,7 +296,10 @@ public class SessionMonitor {
     // ===== VIOLATION STATE MANAGEMENT =====
 
     /**
-     * Starts a violation if it's different from the current one
+     * Starts a violation if it's different from the current one.
+     *
+     * @param appName The name of the application or website triggering the violation
+     * @param isApp True if the violation is an application, false if it is a website
      */
     private void startViolationIfChanged(String appName, boolean isApp) {
         if (!session.hasActiveViolation()) {
@@ -310,7 +316,9 @@ public class SessionMonitor {
     }
 
     /**
-     * Resets the overlay trigger cadence for the given violation type
+     * Resets the overlay trigger cadence for the given violation type.
+     *
+     * @param isApp True if the violation is an application, false if it is a website
      */
     private void resetOverlayCadence(boolean isApp) {
         if (isApp) {
@@ -321,7 +329,7 @@ public class SessionMonitor {
     }
 
     /**
-     * Clears app violation if currently active
+     * Clears app violation if currently active.
      */
     private void clearAppViolationIfActive() {
         if (!session.hasActiveViolation()) {
@@ -340,7 +348,7 @@ public class SessionMonitor {
     }
 
     /**
-     * Clears website violation if currently active
+     * Clears website violation if currently active.
      */
     private void clearWebsiteViolationIfActive() {
         if (!session.hasActiveViolation()) {
@@ -358,6 +366,13 @@ public class SessionMonitor {
         }
     }
 
+    /**
+     * Matches the frontmost application against a list of blocked applications.
+     *
+     * @param frontApp The name of the frontmost application
+     * @param blockedApps The list of blocked applications
+     * @return The matched application name, or null if no match is found
+     */
     private String matchFrontmostBlockedApp(String frontApp, List<String> blockedApps) {
         if (frontApp == null || frontApp.isBlank()) {
             return null;
@@ -373,6 +388,12 @@ public class SessionMonitor {
         return null;
     }
 
+    /**
+     * Normalizes an application name for consistent comparison.
+     *
+     * @param appName The application name to normalize
+     * @return The normalized application name
+     */
     private String normalizeAppName(String appName) {
         if (appName == null) {
             return "";
@@ -390,7 +411,7 @@ public class SessionMonitor {
     // ===== GETTERS =====
 
     /**
-     * Gets the elapsed time in seconds
+     * Gets the elapsed time in seconds.
      *
      * @return Elapsed seconds
      */
@@ -399,7 +420,7 @@ public class SessionMonitor {
     }
 
     /**
-     * Checks if monitor is currently running
+     * Checks if monitor is currently running.
      *
      * @return true if monitoring
      */

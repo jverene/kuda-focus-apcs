@@ -238,6 +238,11 @@ public class WindowsAppMonitor extends AppMonitor {
         return userApps;
     }
 
+    /**
+     * Returns a string representation of the Windows app monitor.
+     *
+     * @return A string containing the current process count
+     */
     @Override
     public String toString() {
         return "WindowsAppMonitor{processes=" + getProcessCount() + "}";

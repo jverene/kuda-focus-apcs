@@ -8,18 +8,16 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * macOS-specific implementation of AppMonitor.
- * Demonstrates how ABSTRACTION allows platform-specific code
- * while maintaining a common interface.
+ * macOS-specific implementation of the AppMonitor.
  *
- * This class extends AppMonitor and implements the abstract methods
- * using macOS-specific system commands.
+ * This class implements process monitoring for macOS systems by executing and parsing
+ * the output of the 'ps aux' command to identify active applications.
  */
 public class MacOSAppMonitor extends AppMonitor {
 
     /**
-     * Common app name mappings for macOS
-     * Maps process names to user-friendly display names
+     * Common application name mappings for macOS that link process names
+     * to user-friendly display names.
      */
     private static final String[][] APP_NAME_MAPPINGS = {
             {"Google Chrome", "Chrome"},
@@ -45,19 +43,10 @@ public class MacOSAppMonitor extends AppMonitor {
     }
 
     /**
-     * IMPLEMENTS ABSTRACT METHOD from AppMonitor.
+     * Retrieves the list of currently running processes on macOS.
+     * This implementation executes the 'ps aux' command and parses the resulting output.
      *
-     * Gets currently running processes on macOS using the 'ps aux' command.
-     * This is the macOS-specific implementation.
-     *
-     * Process:
-     * 1. Execute 'ps aux' command via ProcessBuilder
-     * 2. Parse the output line by line
-     * 3. Extract process names and PIDs
-     * 4. Create ProcessInfo objects
-     * 5. Return the list
-     *
-     * @return List of currently running processes
+     * @return A list of ProcessInfo objects representing active processes on macOS.
      */
     @Override
     protected List<ProcessInfo> getCurrentProcesses() {
@@ -101,20 +90,17 @@ public class MacOSAppMonitor extends AppMonitor {
             reader.close();
 
         } catch (Exception e) {
-            System.err.println("Error getting macOS processes: " + e.getMessage());
+            // Silent failure following standardized monitoring patterns
         }
 
         return processes;
     }
 
     /**
-     * IMPLEMENTS ABSTRACT METHOD from AppMonitor.
+     * Normalizes a raw process name for macOS by removing extensions and helper suffixes.
      *
-     * Normalizes process names for macOS.
-     * Removes file extensions, helpers, and standardizes names.
-     *
-     * @param rawProcessName Raw process name from system
-     * @return Normalized process name
+     * @param rawProcessName The raw process name retrieved from the system.
+     * @return The normalized version of the application name.
      */
     @Override
     protected String normalizeProcessName(String rawProcessName) {
@@ -260,9 +246,9 @@ public class MacOSAppMonitor extends AppMonitor {
     }
 
     /**
-     * Gets the list of user-facing applications (filters out system processes).
+     * Filters the currently running processes to return only user-facing applications.
      *
-     * @return List of user applications
+     * @return A list of ProcessInfo objects for detected user applications.
      */
     public List<ProcessInfo> getUserApplications() {
         List<ProcessInfo> allProcesses = getCurrentProcesses();
@@ -277,6 +263,11 @@ public class MacOSAppMonitor extends AppMonitor {
         return userApps;
     }
 
+    /**
+     * Returns a string representation of the macOS application monitor.
+     *
+     * @return A string containing state information for this monitor.
+     */
     @Override
     public String toString() {
         return "MacOSAppMonitor{processes=" + getProcessCount() + "}";
