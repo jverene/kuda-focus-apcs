@@ -9,6 +9,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.feather.Feather;
 
 /**
  * Session summary panel - displays results after a focus session completes.
@@ -177,6 +179,12 @@ public class SessionSummaryPanel extends BasePanel {
         scoreDescriptionLabel.setFont(UIConstants.getHeadingFont());
         scoreDescriptionLabel.setTextFill(scoreColor);
         scoreDescriptionLabel.setTextAlignment(TextAlignment.CENTER);
+        if (score >= 95) {
+             FontIcon starIcon = new FontIcon("fth-star");
+             starIcon.setIconColor(scoreColor);
+             scoreDescriptionLabel.setGraphic(starIcon);
+             scoreDescriptionLabel.setGraphicTextGap(8);
+        }
 
         // Duration
         int actualMinutes = focusSession.getActualDurationMinutes();
@@ -211,7 +219,9 @@ public class SessionSummaryPanel extends BasePanel {
                     String.format("Most distracting: %s (%d sec)", mostDistracting, distractedSeconds)
             );
         } else {
-            mostDistractingLabel = new Label("No distractions - perfect focus! 🎯");
+            mostDistractingLabel = new Label("No distractions - perfect focus!");
+            mostDistractingLabel.setGraphic(new FontIcon("fth-target"));
+            mostDistractingLabel.setGraphicTextGap(8);
         }
         mostDistractingLabel.setFont(UIConstants.getBodyFont());
         mostDistractingLabel.setTextFill(getTextSecondaryColor());
@@ -219,8 +229,10 @@ public class SessionSummaryPanel extends BasePanel {
         // Streak update
         boolean qualifies = focusSession.qualifiesForStreak();
         if (qualifies) {
-            streakUpdateLabel = new Label(String.format("✨ Streak: %d day%s!", currentStreak, currentStreak == 1 ? "" : "s"));
+            streakUpdateLabel = new Label(String.format("Streak: %d day%s!", currentStreak, currentStreak == 1 ? "" : "s"));
             streakUpdateLabel.setTextFill(getSuccessColor());
+            streakUpdateLabel.setGraphic(new FontIcon("fth-trending-up"));
+            streakUpdateLabel.setGraphicTextGap(8);
         } else {
             streakUpdateLabel = new Label("Reach 80+ score and 30+ min to build your streak");
             streakUpdateLabel.setTextFill(getTextMutedColor());
@@ -339,7 +351,7 @@ public class SessionSummaryPanel extends BasePanel {
      */
     private String getScoreDescription(int score) {
         if (score >= 95) {
-            return "Exceptional Focus! 🌟";
+            return "Exceptional Focus!";
         } else if (score >= 85) {
             return "Excellent Focus!";
         } else if (score >= 70) {

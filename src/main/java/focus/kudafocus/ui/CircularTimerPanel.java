@@ -11,6 +11,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.feather.Feather;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,9 +166,11 @@ public class CircularTimerPanel extends BasePanel {
      */
     private void createComponents() {
         // Streak label (top)
-        streakLabel = new Label("🔥 0 days");
+        streakLabel = new Label("0 days");
         streakLabel.setFont(UIConstants.getHeadingFont());
         streakLabel.setTextFill(getTextPrimaryColor());
+        streakLabel.setGraphic(new FontIcon("fth-trending-up"));
+        streakLabel.setGraphicTextGap(8);
 
         // Circular progress ring
         progressRing = new CircularProgressRing(UIConstants.TIMER_RING_DIAMETER);
@@ -363,7 +367,7 @@ public class CircularTimerPanel extends BasePanel {
         if (streakDays == 0) {
             streakLabel.setText("Start your streak!");
         } else {
-            streakLabel.setText(String.format("🔥 %d day%s", streakDays, streakDays == 1 ? "" : "s"));
+            streakLabel.setText(String.format("%d day%s", streakDays, streakDays == 1 ? "" : "s"));
         }
     }
 

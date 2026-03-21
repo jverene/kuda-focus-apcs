@@ -14,6 +14,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.geometry.Rectangle2D;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
  * Full-screen distraction overlay that appears when blocked apps are detected.
@@ -183,10 +184,17 @@ public class DistractionOverlay {
      */
     private void createComponents() {
         // Main message
-        messageLabel = new Label("⚠️ Stay Focused!");
+        messageLabel = new Label("Stay Focused!");
         messageLabel.setFont(UIConstants.getTitleFont());
         messageLabel.setTextFill(theme.getTextPrimary());
         messageLabel.setTextAlignment(TextAlignment.CENTER);
+
+        // Warning Icon
+        FontIcon warningIcon = new FontIcon("fth-alert-triangle");
+        warningIcon.setIconSize(48);
+        warningIcon.setIconColor(theme.getWarningColor());
+        messageLabel.setGraphic(warningIcon);
+        messageLabel.setGraphicTextGap(15);
 
         // App name
         appNameLabel = new Label("You opened: " + blockedAppName);

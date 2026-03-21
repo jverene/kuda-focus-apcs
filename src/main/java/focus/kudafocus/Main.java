@@ -124,18 +124,18 @@ public class Main extends Application {
         System.out.println("\n========================================");
         System.out.println("KUDA FOCUS - Minimalist Focus Timer");
         System.out.println("========================================");
-        System.out.println("✓ Phase 2: Timer UI & Session Flow COMPLETE");
+        System.out.println("[OK] Phase 2: Timer UI & Session Flow COMPLETE");
         System.out.println("\nImplemented Components:");
-        System.out.println("  • Timer.java - Countdown logic with JavaFX Timeline");
-        System.out.println("  • CircularProgressRing.java - Drag-to-select circular control");
-        System.out.println("  • CircularTimerPanel.java - Home screen");
-        System.out.println("  • ActiveSessionPanel.java - Running session view");
-        System.out.println("  • DistractionOverlay.java - Full-screen overlay");
-        System.out.println("  • SessionSummaryPanel.java - Results screen");
+        System.out.println("  - Timer.java - Countdown logic with JavaFX Timeline");
+        System.out.println("  - CircularProgressRing.java - Drag-to-select circular control");
+        System.out.println("  - CircularTimerPanel.java - Home screen");
+        System.out.println("  - ActiveSessionPanel.java - Running session view");
+        System.out.println("  - DistractionOverlay.java - Full-screen overlay");
+        System.out.println("  - SessionSummaryPanel.java - Results screen");
         System.out.println("\nOOP Demonstrations:");
-        System.out.println("  • Encapsulation: FocusSession (private fields, hidden scoring logic)");
-        System.out.println("  • Abstraction: AppMonitor (platform details hidden)");
-        System.out.println("  • Inheritance: All panels extend BasePanel");
+        System.out.println("  - Encapsulation: FocusSession (private fields, hidden scoring logic)");
+        System.out.println("  - Abstraction: AppMonitor (platform details hidden)");
+        System.out.println("  - Inheritance: All panels extend BasePanel");
         System.out.println("\nHow to Use:");
         System.out.println("  1. Drag around the circle to select time (0-180 min)");
         System.out.println("  2. Click START to begin focus session");
@@ -278,7 +278,7 @@ public class Main extends Application {
             return;
         }
 
-        System.out.println("⚠️  VIOLATION DETECTED: " + appName);
+        System.out.println("[VIOLATION] DETECTED: " + appName);
 
         // Recreate overlay so message reflects latest detected app/website.
         if (distractionOverlay != null) {
