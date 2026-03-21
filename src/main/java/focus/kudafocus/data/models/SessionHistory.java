@@ -4,29 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Container for all session records.
- * This is what gets serialized to sessions.json.
+ * Represents a container for all session records within the application.
+ * This class serves as the primary data structure for serializing and
+ * deserializing session history to and from JSON storage.
  */
 public class SessionHistory {
 
     /**
-     * List of all completed/abandoned sessions
+     * The list of all completed or abandoned focus sessions.
      */
     private List<SessionRecord> sessions;
 
     // ===== CONSTRUCTORS =====
 
     /**
-     * Creates empty session history
+     * Initializes a new instance of SessionHistory with an empty list of sessions.
      */
     public SessionHistory() {
         this.sessions = new ArrayList<>();
     }
 
     /**
-     * Creates session history with existing sessions
+     * Initializes a new instance of SessionHistory with the specified list of sessions.
      *
-     * @param sessions List of sessions
+     * @param sessions the list of existing session records to include in the history
      */
     public SessionHistory(List<SessionRecord> sessions) {
         this.sessions = sessions;
@@ -35,18 +36,18 @@ public class SessionHistory {
     // ===== METHODS =====
 
     /**
-     * Adds a session to history
+     * Appends a session record to the session history.
      *
-     * @param session Session to add
+     * @param session the session record to be added
      */
     public void addSession(SessionRecord session) {
         sessions.add(session);
     }
 
     /**
-     * Gets number of sessions
+     * Retrieves the total number of sessions stored in the history.
      *
-     * @return Number of sessions
+     * @return the number of session records
      */
     public int getCount() {
         return sessions.size();
@@ -54,10 +55,20 @@ public class SessionHistory {
 
     // ===== GETTERS AND SETTERS =====
 
+    /**
+     * Retrieves the list of all session records.
+     *
+     * @return the list of session records
+     */
     public List<SessionRecord> getSessions() {
         return sessions;
     }
 
+    /**
+     * Sets the list of session records.
+     *
+     * @param sessions the list of session records to set
+     */
     public void setSessions(List<SessionRecord> sessions) {
         this.sessions = sessions;
     }
