@@ -133,18 +133,38 @@ public class Violation {
 
     // ===== SETTERS (for deserialization) =====
 
+    /**
+     * Sets the timestamp when this violation occurred.
+     *
+     * @param timestamp The violation timestamp
+     */
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
+    /**
+     * Sets the name of the blocked app.
+     *
+     * @param appName The name of the app
+     */
     public void setAppName(String appName) {
         this.appName = appName;
     }
 
+    /**
+     * Sets the total duration spent on the blocked app.
+     *
+     * @param durationSeconds The duration in seconds
+     */
     public void setDurationSeconds(int durationSeconds) {
         this.durationSeconds = durationSeconds;
     }
 
+    /**
+     * Sets the number of overlay dismissals.
+     *
+     * @param dismissCount The number of dismissals
+     */
     public void setDismissCount(int dismissCount) {
         this.dismissCount = dismissCount;
     }

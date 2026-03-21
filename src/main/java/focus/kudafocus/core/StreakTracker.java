@@ -25,15 +25,38 @@ import java.time.temporal.ChronoUnit;
  * It resets to 0 if a day is missed (no qualifying session).
  */
 public class StreakTracker {
+    /**
+     * The name of the directory where application data is stored.
+     */
     private static final String DATA_DIR = ".kudafocus";
+
+    /**
+     * The name of the file where streak data is persisted.
+     */
     private static final String STREAK_FILE = "streak_data.json";
+
+    /**
+     * The current number of consecutive days with qualifying focus sessions.
+     */
     private int currentStreak;
+
+    /**
+     * The date when the last qualifying focus session occurred.
+     */
     private LocalDate lastQualifyingDate;
+
+    /**
+     * The path to the file where streak data is stored.
+     */
     private final Path dataFilePath;
+
+    /**
+     * The GSON instance used for JSON serialization and deserialization.
+     */
     private final Gson gson;
 
     /**
-     * Creates a new StreakTracker and loads existing streak data
+     * Creates a new StreakTracker and loads existing streak data.
      */
     public StreakTracker() {
         this.gson = new GsonBuilder()
@@ -50,7 +73,8 @@ public class StreakTracker {
     }
 
     /**
-     * Loads streak data from file, or initializes to 0 if no data exists
+     * Loads streak data from the persistence file.
+     * Initializes the streak to 0 if no data exists or an error occurs.
      */
     private void loadStreak() {
         try {
@@ -71,7 +95,8 @@ public class StreakTracker {
     }
 
     /**
-     * Saves current streak data to file
+     * Saves the current streak data to the persistence file.
+     * Creates the data directory if it does not exist.
      */
     private void saveStreak() {
         try {
@@ -93,7 +118,7 @@ public class StreakTracker {
     }
 
     /**
-     * Gets the current streak count
+     * Gets the current streak count.
      *
      * @return Number of consecutive days with qualifying sessions
      */
@@ -102,7 +127,7 @@ public class StreakTracker {
     }
 
     /**
-     * Gets the date of the last qualifying session
+     * Gets the date of the last qualifying session.
      *
      * @return LocalDate of last qualifying session, or null if no sessions
      */
@@ -112,7 +137,6 @@ public class StreakTracker {
 
     /**
      * Updates the streak based on a newly completed session.
-     * Call this when a session is completed and qualifies for the streak.
      *
      * Streak logic:
      * - If today is the same as lastQualifyingDate: no change (already counted today)
@@ -153,7 +177,7 @@ public class StreakTracker {
     }
 
     /**
-     * Resets the streak to 0
+     * Resets the current streak to zero and clears the last qualifying date.
      */
     public void resetStreak() {
         currentStreak = 0;
@@ -162,12 +186,25 @@ public class StreakTracker {
     }
 
     /**
-     * Internal data class for JSON serialization
+     * Represents the data structure used for streak persistence.
      */
     private static class StreakData {
+        /**
+         * The current streak count.
+         */
         int currentStreak;
+
+        /**
+         * The ISO-8601 string representation of the last qualifying date.
+         */
         String lastQualifyingDate; // ISO-8601 format
 
+        /**
+         * Creates a new StreakData instance.
+         *
+         * @param currentStreak The current streak count
+         * @param lastQualifyingDate The date of the last qualifying session as a string
+         */
         StreakData(int currentStreak, String lastQualifyingDate) {
             this.currentStreak = currentStreak;
             this.lastQualifyingDate = lastQualifyingDate;

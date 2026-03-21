@@ -5,16 +5,11 @@ import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 /**
- * Countdown timer for focus sessions.
+ * A countdown timer for focus sessions.
  *
- * This class provides second-precision countdown functionality with callbacks
- * for UI updates. It uses JavaFX Timeline for smooth, thread-safe updates
- * that work well with the JavaFX Application Thread.
- *
- * Key Concepts (for APCS):
- * - Callback pattern: Allows other code to respond to timer events
- * - Encapsulation: Timer state is private, controlled through methods
- * - Event-driven programming: UI updates triggered by timer ticks
+ * This class provides second-precision countdown functionality with support
+ * for event callbacks. It utilizes a JavaFX Timeline to ensure updates are 
+ * performed on the JavaFX Application Thread.
  */
 public class Timer {
 

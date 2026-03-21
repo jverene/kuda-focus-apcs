@@ -9,25 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Represents a focus session demonstrating ENCAPSULATION in OOP.
- *
- * Encapsulation Demonstration:
- * - All fields are PRIVATE - cannot be accessed directly from outside
- * - Public getter/setter methods provide controlled access
- * - Focus score calculation is HIDDEN (private method)
- * - Internal state protected from invalid modifications
- *
- * This design ensures that:
- * - Session data integrity is maintained
- * - Score calculation logic is hidden from external code
- * - Changes to scoring algorithm don't affect other classes
- * - Only valid operations can be performed on session data
- *
- * Benefits of Encapsulation:
- * - Data hiding: Internal details are hidden
- * - Controlled access: Only through public methods
- * - Flexibility: Can change internal implementation without breaking external code
- * - Validation: Can validate data before accepting changes
+ * Represents a focus session, managing session state, violations, and focus scoring.
+ * 
+ * This class encapsulates session data including start time, duration, blocked 
+ * applications, and websites. It tracks violations and calculates a focus 
+ * score based on user performance during the session.
  */
 public class FocusSession {
 
@@ -117,7 +103,16 @@ public class FocusSession {
     }
 
     /**
-     * Creates a session from stored data (for deserialization)
+     * Creates a session from stored data (for deserialization).
+     *
+     * @param sessionId The unique identifier for the session
+     * @param startTime The time when the session started
+     * @param plannedDuration The intended duration in seconds
+     * @param actualDuration The actual duration in seconds
+     * @param violations The list of violations recorded
+     * @param focusScore The calculated focus score
+     * @param completed Whether the session was completed
+     * @param blockedApps The list of apps blocked during the session
      */
     public FocusSession(String sessionId, LocalDateTime startTime, int plannedDuration,
                         int actualDuration, List<Violation> violations, int focusScore,
@@ -126,7 +121,17 @@ public class FocusSession {
     }
 
     /**
-     * Creates a session from stored data with blocked websites (for deserialization)
+     * Creates a session from stored data with blocked websites (for deserialization).
+     *
+     * @param sessionId The unique identifier for the session
+     * @param startTime The time when the session started
+     * @param plannedDuration The intended duration in seconds
+     * @param actualDuration The actual duration in seconds
+     * @param violations The list of violations recorded
+     * @param focusScore The calculated focus score
+     * @param completed Whether the session was completed
+     * @param blockedApps The list of apps blocked during the session
+     * @param blockedWebsites The list of websites blocked during the session
      */
     public FocusSession(String sessionId, LocalDateTime startTime, int plannedDuration,
                         int actualDuration, List<Violation> violations, int focusScore,
@@ -459,38 +464,83 @@ public class FocusSession {
 
     // ===== SETTERS (for deserialization) =====
 
+    /**
+     * Sets the session ID.
+     *
+     * @param sessionId The unique identifier for the session
+     */
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
+    /**
+     * Sets the start time of the session.
+     *
+     * @param startTime The time when the session started
+     */
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
+    /**
+     * Sets the planned duration of the session.
+     *
+     * @param plannedDuration The intended duration in seconds
+     */
     public void setPlannedDuration(int plannedDuration) {
         this.plannedDuration = plannedDuration;
     }
 
+    /**
+     * Sets the actual duration of the session.
+     *
+     * @param actualDuration The actual duration in seconds
+     */
     public void setActualDuration(int actualDuration) {
         this.actualDuration = actualDuration;
     }
 
+    /**
+     * Sets the list of violations recorded during the session.
+     *
+     * @param violations The list of violations
+     */
     public void setViolations(List<Violation> violations) {
         this.violations = violations;
     }
 
+    /**
+     * Sets the focus score for the session.
+     *
+     * @param focusScore The calculated focus score
+     */
     public void setFocusScore(int focusScore) {
         this.focusScore = focusScore;
     }
 
+    /**
+     * Sets whether the session was completed successfully.
+     *
+     * @param completed True if the session was completed, false otherwise
+     */
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
 
+    /**
+     * Sets the list of blocked apps for this session.
+     *
+     * @param blockedApps The list of apps to block
+     */
     public void setBlockedApps(List<String> blockedApps) {
         this.blockedApps = blockedApps;
     }
 
+    /**
+     * Sets the list of blocked websites for this session.
+     *
+     * @param blockedWebsites The list of websites to block
+     */
     public void setBlockedWebsites(List<String> blockedWebsites) {
         this.blockedWebsites = blockedWebsites;
     }
