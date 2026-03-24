@@ -23,8 +23,8 @@ A minimalist desktop application helping students maintain focus through smart p
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/kudafocus.git
-   cd kudafocus
+   git clone https://github.com/jverene/kuda-focus-apcs.git
+   cd kuda-focus-apcs
    ```
 
 2. Build the project:
