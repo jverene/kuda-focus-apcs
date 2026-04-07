@@ -156,7 +156,10 @@ public abstract class BasePanel extends VBox {
      */
     protected void applyStandardStyling() {
         // Set background color
-        this.setStyle("-fx-background-color: " + toRGBCode(primaryColor) + ";");
+        this.setStyle("-fx-background-color: " + toRGBCode(primaryColor) + ";" +
+                      "-fx-base: " + toRGBCode(primaryColor) + ";" +
+                      "-fx-control-inner-background: " + toRGBCode(getTheme().getBackgroundSecondary()) + ";" +
+                      "-fx-text-background-color: " + toRGBCode(getTextPrimaryColor()) + ";");
 
         // Set default spacing between child nodes
         this.setSpacing(standardSpacing);

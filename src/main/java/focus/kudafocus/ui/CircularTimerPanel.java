@@ -156,7 +156,9 @@ public class CircularTimerPanel extends BasePanel {
         streakLabel = new Label("0 days");
         streakLabel.setFont(UIConstants.getHeadingFont());
         streakLabel.setTextFill(getTextPrimaryColor());
-        streakLabel.setGraphic(new FontIcon("fth-trending-up"));
+        FontIcon streakIcon = new FontIcon("fth-trending-up");
+        streakIcon.setIconColor(getTextPrimaryColor());
+        streakLabel.setGraphic(streakIcon);
         streakLabel.setGraphicTextGap(8);
 
         // Circular progress ring

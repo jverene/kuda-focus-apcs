@@ -153,7 +153,10 @@ public class AppSelectionModal extends Stage {
 
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(UIConstants.PADDING_STANDARD));
-        root.setStyle("-fx-background-color: " + toRGBCode(theme.getBackgroundPrimary()) + ";");
+        root.setStyle("-fx-background-color: " + toRGBCode(theme.getBackgroundPrimary()) + ";" +
+                      "-fx-base: " + toRGBCode(theme.getBackgroundPrimary()) + ";" +
+                      "-fx-control-inner-background: " + toRGBCode(theme.getBackgroundSecondary()) + ";" +
+                      "-fx-text-background-color: " + toRGBCode(theme.getTextPrimary()) + ";");
 
         VBox content = new VBox(UIConstants.SPACING_MD);
         content.setAlignment(Pos.TOP_CENTER);
