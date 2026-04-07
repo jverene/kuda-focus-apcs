@@ -21,100 +21,127 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The main entry point for the KUDA FOCUS application.
+ * Main entry point for KUDA FOCUS application.
  *
- * This class manages the application lifecycle and handles transitions between different
- * screens, including the home screen, active session view, results summary, and
- * distraction overlays. It serves as the central controller for the application's
- * primary user interface and session flow.
+ * Manages the application lifecycle and scene transitions:
+ * - CircularTimerPanel (home screen)
+ * - ActiveSessionPanel (running session)
+ * - SessionSummaryPanel (results)
+ * - DistractionOverlay (appears when blocked apps detected)
+ *
+ * Demonstrates OOP principles:
+ * - Encapsulation: FocusSession class (private fields, public methods)
+ * - Abstraction: AppMonitor hierarchy (platform-specific implementations hidden)
+ * - Inheritance: BasePanel hierarchy (CircularTimerPanel, ActiveSessionPanel, etc. extend BasePanel)
+ *
+ * This demonstrates a complete session flow with all Phase 2 components!
  */
 public class Main extends Application {
 
     /**
-     * Creates a new Main application instance.
-     */
-    public Main() {
-        super();
-    }
-
-    /**
-     * The primary application stage.
+     * Primary application stage (window)
      */
     private Stage primaryStage;
 
     /**
-     * The current scene being displayed.
+     * Current scene
      */
     private Scene scene;
 
     /**
-     * The home screen panel containing the circular timer.
+     * Home screen panel
      */
     private CircularTimerPanel timerPanel;
 
     /**
-     * The current theme applied to the application.
+     * Current theme (default dark)
      */
     private Theme currentTheme = new DarkTheme();
 
     /**
-     * Toggles between light and dark mode and refreshes the home screen.
+     * Toggles between light and dark mode and refreshes the home screen
      *
      * @param enable true to enable light mode, false to revert to dark mode
      */
     private void toggleLightMode(boolean enable) {
         currentTheme = enable ? new LightTheme() : new DarkTheme();
+        
+        if (scene == null || scene.getRoot() == null) {
+            showHomeScreen();
+            return;
+        }
+
+        javafx.scene.Parent oldRoot = scene.getRoot();
+        if (oldRoot instanceof javafx.scene.layout.StackPane && "transitionPane".equals(oldRoot.getId())) {
+            // Already animating, jump to end
+            oldRoot = (javafx.scene.Parent) ((javafx.scene.layout.StackPane) oldRoot).getChildren().get(0);
+        }
+
+        // Generate new home screen, this sets scene.getRoot() to timerPanel
         showHomeScreen();
+        javafx.scene.Parent newRoot = scene.getRoot();
+
+        if (oldRoot != newRoot) {
+            javafx.scene.layout.StackPane transitionPane = new javafx.scene.layout.StackPane();
+            transitionPane.setId("transitionPane");
+            transitionPane.getChildren().addAll(oldRoot, newRoot);
+            scene.setRoot(transitionPane);
+
+            newRoot.setOpacity(0.0);
+
+            javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(javafx.util.Duration.millis(300), oldRoot);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+
+            javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(javafx.util.Duration.millis(300), newRoot);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+
+            fadeIn.setOnFinished(e -> {
+                scene.setRoot(newRoot);
+            });
+
+            fadeOut.play();
+            fadeIn.play();
+        }
     }
 
     /**
-     * The active session panel shown during a running timer.
+     * Active session panel (running timer)
      */
     private ActiveSessionPanel activeSessionPanel;
 
     /**
-     * The session summary panel shown after a session completes or stops.
+     * Session summary panel (results)
      */
     private SessionSummaryPanel summaryPanel;
 
     /**
-     * The distraction overlay displayed when blocked applications are detected.
+     * Distraction overlay (shown when blocked apps detected)
      */
     private DistractionOverlay distractionOverlay;
 
     /**
-     * The current active focus session.
+     * Current active session (if any)
      */
     private FocusSession currentSession;
-
-    /**
-     * The store for persisting and loading user preferences.
-     */
     private PreferencesStore preferencesStore;
-
-    /**
-     * The loaded preferences for the current user.
-     */
     private UserPreferences userPreferences;
-
-    /**
-     * The tracker for maintaining user focus streaks.
-     */
     private StreakTracker streakTracker;
 
     /**
-     * Launches the application.
+     * Application entry point
      *
-     * @param args The command line arguments.
+     * @param args Command line arguments
      */
     public static void main(String[] args) {
         launch(args);
     }
 
     /**
-     * Initializes the application and sets up the primary stage.
+     * JavaFX start method - sets up the UI
      *
-     * @param primaryStage The main application window.
+     * @param primaryStage Main application window
      */
     @Override
     public void start(Stage primaryStage) {
@@ -123,17 +150,46 @@ public class Main extends Application {
         this.userPreferences = preferencesStore.load();
         this.streakTracker = new StreakTracker();
 
+        // Set up window
         primaryStage.setTitle("KUDA FOCUS - Minimalist Focus Timer");
+
+        // Create home screen
         showHomeScreen();
+
+        // Show window
         primaryStage.show();
+
+        System.out.println("\n========================================");
+        System.out.println("KUDA FOCUS - Minimalist Focus Timer");
+        System.out.println("========================================");
+        System.out.println("✓ Phase 2: Timer UI & Session Flow COMPLETE");
+        System.out.println("\nImplemented Components:");
+        System.out.println("  • Timer.java - Countdown logic with JavaFX Timeline");
+        System.out.println("  • CircularProgressRing.java - Drag-to-select circular control");
+        System.out.println("  • CircularTimerPanel.java - Home screen");
+        System.out.println("  • ActiveSessionPanel.java - Running session view");
+        System.out.println("  • DistractionOverlay.java - Full-screen overlay");
+        System.out.println("  • SessionSummaryPanel.java - Results screen");
+        System.out.println("\nOOP Demonstrations:");
+        System.out.println("  • Encapsulation: FocusSession (private fields, hidden scoring logic)");
+        System.out.println("  • Abstraction: AppMonitor (platform details hidden)");
+        System.out.println("  • Inheritance: All panels extend BasePanel");
+        System.out.println("\nHow to Use:");
+        System.out.println("  1. Drag around the circle to select time (0-180 min)");
+        System.out.println("  2. Click START to begin focus session");
+        System.out.println("  3. Timer will count down with live progress ring");
+        System.out.println("  4. PAUSE/RESUME or STOP session anytime");
+        System.out.println("  5. View results with focus score and statistics");
+        System.out.println("========================================\n");
     }
 
     // ===== SCREEN NAVIGATION METHODS =====
 
     /**
-     * Displays the home screen panel.
+     * Shows the home screen (circular timer panel)
      */
     private void showHomeScreen() {
+        // Clean up previous panels
         if (activeSessionPanel != null) {
             activeSessionPanel.cleanup();
             activeSessionPanel = null;
@@ -143,8 +199,10 @@ public class Main extends Application {
             distractionOverlay = null;
         }
 
+        // Create new timer panel with current theme
         timerPanel = new CircularTimerPanel(currentTheme);
 
+        // Set up callback for panel events
         timerPanel.setCallback(new CircularTimerPanel.CircularTimerCallback() {
             @Override
             public void onStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites) {
@@ -162,10 +220,14 @@ public class Main extends Application {
             }
         });
 
+        // Set initial streak from tracker
         timerPanel.setStreak(streakTracker.getCurrentStreak());
         timerPanel.setSelectedApps(userPreferences.getLastSelectedApps());
+        // IMPORTANT: Do NOT auto-load blocked websites from previous sessions
+        // Users should explicitly select websites for each session to avoid surprising auto-blocking
         timerPanel.setSelectedWebsites(new ArrayList<>());
 
+        // Create scene if not exists, or update root
         if (scene == null) {
             scene = new Scene(timerPanel, UIConstants.WINDOW_WIDTH, UIConstants.WINDOW_HEIGHT);
             primaryStage.setScene(scene);
@@ -175,13 +237,17 @@ public class Main extends Application {
     }
 
     /**
-     * Displays the active session screen.
-     *
-     * @param session The focus session to display.
+     * Shows the active session screen (running timer)
      */
     private void showActiveSession(FocusSession session) {
+        System.out.println("\n=== STARTING FOCUS SESSION ===");
+        System.out.println("Duration: " + session.getPlannedDurationMinutes() + " minutes");
+        System.out.println("Blocked apps: " + (session.getBlockedApps().isEmpty() ? "None" : session.getBlockedApps()));
+
+        // Create active session panel
         activeSessionPanel = new ActiveSessionPanel(session, currentTheme);
 
+        // Set up callback for session events
         activeSessionPanel.setCallback(new ActiveSessionPanel.ActiveSessionCallback() {
             @Override
             public void onSessionComplete(FocusSession completedSession) {
@@ -199,26 +265,38 @@ public class Main extends Application {
             }
         });
 
+        // Update scene
         scene.setRoot(activeSessionPanel);
     }
 
     /**
-     * Displays the session summary screen.
-     *
-     * @param session The completed or stopped focus session.
+     * Shows the session summary screen (results)
      */
     private void showSessionSummary(FocusSession session) {
+        // Update streak if session qualifies
         if (session.qualifiesForStreak()) {
             streakTracker.recordSession(true);
         }
 
+        System.out.println("\n=== SESSION SUMMARY ===");
+        System.out.println("Focus Score: " + session.getFocusScore());
+        System.out.println("Duration: " + session.getActualDurationMinutes() + " / " + session.getPlannedDurationMinutes() + " minutes");
+        System.out.println("Violations: " + session.getViolationCount());
+        System.out.println("Dismissals: " + session.getTotalDismissals());
+        System.out.println("Most Distracting: " + session.getMostDistractingApp());
+        System.out.println("Qualifies for Streak: " + (session.qualifiesForStreak() ? "YES" : "NO"));
+        System.out.println("Current Streak: " + streakTracker.getCurrentStreak() + " days");
+
+        // Clean up active session panel
         if (activeSessionPanel != null) {
             activeSessionPanel.cleanup();
             activeSessionPanel = null;
         }
 
+        // Create summary panel with current streak count
         summaryPanel = new SessionSummaryPanel(session, streakTracker.getCurrentStreak(), currentTheme);
 
+        // Set up callback
         summaryPanel.setCallback(new SessionSummaryPanel.SummaryCallback() {
             @Override
             public void onContinue() {
@@ -226,54 +304,59 @@ public class Main extends Application {
             }
         });
 
+        // Update scene
         scene.setRoot(summaryPanel);
     }
 
     /**
-     * Displays the distraction overlay when a violation occurs.
-     *
-     * @param appName The name of the application or website that triggered the violation.
+     * Shows the distraction overlay (when blocked app detected)
      */
     private void showDistractionOverlay(String appName) {
         if (currentSession == null) {
             return;
         }
 
+        System.out.println("⚠️  VIOLATION DETECTED: " + appName);
+
+        // Recreate overlay so message reflects latest detected app/website.
         if (distractionOverlay != null) {
             distractionOverlay.close();
         }
 
         distractionOverlay = new DistractionOverlay(currentSession, appName, currentTheme);
 
+        // Set up callback
         distractionOverlay.setCallback(new DistractionOverlay.OverlayCallback() {
             @Override
             public void onDismissed() {
-                // Overlay dismissed by user
+                System.out.println("Overlay dismissed by user");
             }
         });
 
+        // Show overlay
         distractionOverlay.show();
     }
 
     // ===== EVENT HANDLERS =====
 
     /**
-     * Handles the start of a new focus session.
-     *
-     * @param durationMinutes The planned duration of the session in minutes.
-     * @param blockedApps The list of applications to block during the session.
-     * @param blockedWebsites The list of websites to block during the session.
+     * Handles START button click from home screen
      */
     private void handleStartSession(int durationMinutes, List<String> blockedApps, List<String> blockedWebsites) {
+        // Create new session with both apps and websites
         int durationSeconds = durationMinutes * 60;
+        System.out.println("[Main] Starting session with apps: " + blockedApps + " and websites: " + blockedWebsites);
         currentSession = new FocusSession(durationSeconds, blockedApps, blockedWebsites);
+
+        // Show active session screen
         showActiveSession(currentSession);
     }
 
     /**
-     * Opens the selection modal for blocked applications and websites.
+     * Handles app and website selection request
      */
     private void handleSelectApps() {
+        System.out.println("Opening app & website selection modal...");
         AppSelectionModal modal = new AppSelectionModal(
                 primaryStage,
                 timerPanel.getSelectedApps(),
@@ -292,44 +375,51 @@ public class Main extends Application {
             userPreferences.setLastSelectedApps(selectedApps);
             userPreferences.setLastSelectedWebsites(selectedWebsites);
             preferencesStore.save(userPreferences);
+            
+            System.out.println("Selected blocked apps: " + selectedApps);
+            System.out.println("Selected blocked sites: " + selectedWebsites);
+        } else {
+            System.out.println("App & website selection canceled.");
         }
     }
 
     /**
-     * Handles the completion of a focus session when the timer reaches zero.
-     *
-     * @param session The completed focus session.
+     * Handles session completion (timer reached 0)
      */
     private void handleSessionComplete(FocusSession session) {
+        // Mark session as complete with full duration
         session.complete(session.getPlannedDuration());
+
+        // Show summary screen
         showSessionSummary(session);
     }
 
     /**
-     * Handles the premature termination of a focus session by the user.
-     *
-     * @param session The abandoned focus session.
-     * @param actualDuration The actual duration spent in the session in seconds.
+     * Handles session stopped early (user clicked STOP)
      */
     private void handleSessionStopped(FocusSession session, int actualDuration) {
+        // Mark session as abandoned
         session.abandon(actualDuration);
+
+        // Show summary screen
         showSessionSummary(session);
     }
 
     /**
-     * Handles the detection of a blocked application during an active session.
-     *
-     * @param appName The name of the detected application.
+     * Handles violation detection (blocked app opened)
      */
     private void handleViolationDetected(String appName) {
+        // Show distraction overlay
         showDistractionOverlay(appName);
     }
 
     /**
-     * Returns the user to the home screen from the session summary.
+     * Handles CONTINUE button from summary screen
      */
     private void handleContinueFromSummary() {
+        // Return to home screen
         currentSession = null;
         showHomeScreen();
     }
 }
+
