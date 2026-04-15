@@ -200,19 +200,24 @@ public class ActiveSessionPanel extends BasePanel {
         pauseButton = new Button("PAUSE");
         pauseButton.setFont(UIConstants.getBodyFont());
         pauseButton.setPrefHeight(UIConstants.BUTTON_HEIGHT);
-        pauseButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 1.2);
+        // Fix width so text change (PAUSE -> RESUME) doesn't cause layout jumps which cancel the hover animation
+        pauseButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 1.5);
+        pauseButton.setPrefWidth(UIConstants.BUTTON_MIN_WIDTH * 1.5);
         pauseButton.setStyle(
                 "-fx-background-color: " + toRGBCode(getWarningColor()) + ";" +
                         "-fx-text-fill: black;" +
                         "-fx-background-radius: 10;" +
                         "-fx-cursor: hand;" +
                         "-fx-font-weight: bold;"
-        );        UIConstants.setupButtonAnimation(pauseButton);
+        );
+        UIConstants.setupButtonAnimation(pauseButton);
+
         // STOP button
         stopButton = new Button("STOP");
         stopButton.setFont(UIConstants.getBodyFont());
         stopButton.setPrefHeight(UIConstants.BUTTON_HEIGHT);
-        stopButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 1.2);
+        stopButton.setMinWidth(UIConstants.BUTTON_MIN_WIDTH * 1.5);
+        stopButton.setPrefWidth(UIConstants.BUTTON_MIN_WIDTH * 1.5);
         stopButton.setStyle(
                 "-fx-background-color: " + toRGBCode(getErrorColor()) + ";" +
                         "-fx-text-fill: white;" +
@@ -334,16 +339,23 @@ public class ActiveSessionPanel extends BasePanel {
      * Handles the interaction for stopping the session manually.
      */
     private void handleStop() {
-        // Stop timer
-        timer.stop();
+        stopButton.setDisable(true); // Prevent double clicks
+        
+        // Give the button animation time to bounce back before navigating
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(150));
+        delay.setOnFinished(e -> {
+            // Stop timer
+            timer.stop();
 
-        // Calculate actual duration
-        int actualDuration = timer.getElapsedSeconds();
+            // Calculate actual duration
+            int actualDuration = timer.getElapsedSeconds();
 
-        // Notify callback
-        if (callback != null) {
-            callback.onSessionStopped(focusSession, actualDuration);
-        }
+            // Notify callback
+            if (callback != null) {
+                callback.onSessionStopped(focusSession, actualDuration);
+            }
+        });
+        delay.play();
     }
 
     /**
