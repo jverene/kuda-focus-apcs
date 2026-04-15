@@ -204,6 +204,7 @@ public class DistractionOverlay {
                         "-fx-cursor: hand;" +
                         "-fx-font-weight: bold;"
         );
+        UIConstants.setupButtonAnimation(dismissButton);
 
         // Warning label
         warningLabel = new Label("Close the app to continue focused work\nThis overlay will reappear in "

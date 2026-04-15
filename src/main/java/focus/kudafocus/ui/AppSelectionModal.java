@@ -191,6 +191,7 @@ public class AppSelectionModal extends Stage {
 
         Button selectAllDistractingButton = new Button("Select All Distracting");
         selectAllDistractingButton.setFont(UIConstants.getSmallFont());
+        UIConstants.setupButtonAnimation(selectAllDistractingButton);
         selectAllDistractingButton.setOnAction(event -> {
             selectedApps.addAll(COMMON_DISTRACTIONS.keySet());
             renderAppList(searchField.getText());
@@ -199,6 +200,7 @@ public class AppSelectionModal extends Stage {
 
         Button clearAllButton = new Button("Clear All");
         clearAllButton.setFont(UIConstants.getSmallFont());
+        UIConstants.setupButtonAnimation(clearAllButton);
         clearAllButton.setOnAction(event -> {
             selectedApps.clear();
             renderAppList(searchField.getText());
@@ -206,6 +208,7 @@ public class AppSelectionModal extends Stage {
         });
         Button refreshButton = new Button("Refresh Apps");
         refreshButton.setFont(UIConstants.getSmallFont());
+        UIConstants.setupButtonAnimation(refreshButton);
         refreshButton.setOnAction(event -> refreshAvailableAppsAndRender());
         quickActionRow.getChildren().addAll(selectAllDistractingButton, clearAllButton, refreshButton);
 
@@ -228,6 +231,7 @@ public class AppSelectionModal extends Stage {
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
 
         Button cancelButton = new Button("Cancel");
+        UIConstants.setupButtonAnimation(cancelButton);
         cancelButton.setOnAction(event -> close());
 
         Button confirmButton = new Button("Confirm");
@@ -235,6 +239,7 @@ public class AppSelectionModal extends Stage {
                 "-fx-background-color: " + toRGBCode(theme.getAccentColor()) + ";" +
                         "-fx-text-fill: white;"
         );
+        UIConstants.setupButtonAnimation(confirmButton);
         confirmButton.setOnAction(event -> {
             confirmed = true;
             close();

@@ -207,8 +207,7 @@ public class ActiveSessionPanel extends BasePanel {
                         "-fx-background-radius: 10;" +
                         "-fx-cursor: hand;" +
                         "-fx-font-weight: bold;"
-        );
-
+        );        UIConstants.setupButtonAnimation(pauseButton);
         // STOP button
         stopButton = new Button("STOP");
         stopButton.setFont(UIConstants.getBodyFont());
@@ -221,6 +220,7 @@ public class ActiveSessionPanel extends BasePanel {
                         "-fx-cursor: hand;" +
                         "-fx-font-weight: bold;"
         );
+        UIConstants.setupButtonAnimation(stopButton);
     }
 
     /**

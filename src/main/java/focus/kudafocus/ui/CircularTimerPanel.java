@@ -188,6 +188,7 @@ public class CircularTimerPanel extends BasePanel {
                         "-fx-background-radius: 25;" +
                         "-fx-cursor: hand;"
         );
+        UIConstants.setupButtonAnimation(startButton);
 
         // App selection button
         selectAppsButton = new Button("Select apps to block");
@@ -200,6 +201,7 @@ public class CircularTimerPanel extends BasePanel {
                         "-fx-background-radius: 10;" +
                         "-fx-cursor: hand;"
         );
+        UIConstants.setupButtonAnimation(selectAppsButton);
 
         // Apps status label
         appsStatusLabel = new Label("No apps selected");
@@ -216,6 +218,7 @@ public class CircularTimerPanel extends BasePanel {
                         "-fx-cursor: hand;" +
                         "-fx-padding: 6 14;"
         );
+        UIConstants.setupButtonAnimation(lightModeButton);
     }
 
     /**

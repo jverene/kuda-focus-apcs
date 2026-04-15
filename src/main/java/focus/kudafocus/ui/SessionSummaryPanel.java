@@ -9,33 +9,39 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.feather.Feather;
 
 /**
- * Represents the session summary panel that displays results after a focus session completes.
+ * Session summary panel - displays results after a focus session completes.
  *
- * Extends the {@link BasePanel} for common styling. This panel displays the completion status, 
- * a color-coded focus score, session statistics including duration and violations, and the most 
- * distracting application identified during the session.
+ * This panel demonstrates INHERITANCE - extends BasePanel for common styling.
  *
- * The focus score is color-coded as follows:
- * <ul>
- *   <li>80-100: Green (SUCCESS_COLOR) - Indicates excellent focus.</li>
- *   <li>50-79: Yellow (WARNING_COLOR) - Indicates good effort with room for improvement.</li>
- *   <li>0-49: Red (DANGER_COLOR) - Indicates many distractions were detected.</li>
- * </ul>
+ * Components:
+ * - Completion message (top)
+ * - Focus score (LARGE, color-coded)
+ * - Session statistics (duration, violations, etc.)
+ * - Most distracting app
+ * - CONTINUE button (returns to home)
+ *
+ * Focus Score Color Coding:
+ * - 80-100: Green (SUCCESS_COLOR) - Excellent focus!
+ * - 50-79: Yellow (WARNING_COLOR) - Good effort, room for improvement
+ * - 0-49: Red (DANGER_COLOR) - Many distractions detected
+ *
+ * Learning Points:
+ * - Conditional styling based on data
+ * - Formatting and presenting statistics
+ * - Data-driven UI updates
  */
 public class SessionSummaryPanel extends BasePanel {
 
     // ===== CALLBACK INTERFACE =====
 
     /**
-     * Provides a callback interface for handling panel events.
+     * Callback interface for panel events
      */
     public interface SummaryCallback {
         /**
-         * Handles the event when the user clicks CONTINUE to return to the home screen.
+         * Called when user clicks CONTINUE to return to home screen
          */
         void onContinue();
     }
@@ -43,94 +49,94 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== COMPONENTS =====
 
     /**
-     * The label for displaying the completion message.
+     * Completion message label
      */
     private Label completionLabel;
 
     /**
-     * The label for displaying the focus score.
+     * Focus score label (large, color-coded)
      */
     private Label scoreLabel;
 
     /**
-     * The label for displaying the score description.
+     * Score description label
      */
     private Label scoreDescriptionLabel;
 
     /**
-     * The label for displaying the session duration.
+     * Duration label
      */
     private Label durationLabel;
 
     /**
-     * The label for displaying the number of violations.
+     * Violations label
      */
     private Label violationsLabel;
 
     /**
-     * The label for displaying the number of dismissals.
+     * Dismissals label
      */
     private Label dismissalsLabel;
 
     /**
-     * The label for displaying the most distracting application.
+     * Most distracting app label
      */
     private Label mostDistractingLabel;
 
     /**
-     * The label for displaying streak updates.
+     * Streak update label
      */
     private Label streakUpdateLabel;
 
     /**
-     * The button used to continue to the next screen.
+     * CONTINUE button
      */
     private Button continueButton;
 
     // ===== STATE =====
 
     /**
-     * The focus session associated with this summary.
+     * The completed focus session
      */
     private FocusSession focusSession;
 
     /**
-     * The current streak count.
+     * Current streak count
      */
     private int currentStreak;
 
     /**
-     * The callback for handling panel events.
+     * Callback for events
      */
     private SummaryCallback callback;
 
     // ===== CONSTRUCTOR =====
 
     /**
-     * Initializes a new session summary panel for the specified focus session with the default dark theme.
+     * Creates a session summary panel for the given completed session with the default dark theme
      *
-     * @param focusSession The completed focus session to summarize.
+     * @param focusSession The completed session
      */
     public SessionSummaryPanel(FocusSession focusSession) {
         this(focusSession, 0, new DarkTheme());
     }
 
     /**
-     * Initializes a new session summary panel for the specified focus session with a custom theme.
+     * Creates a session summary panel for the given completed session with a custom theme
      *
-     * @param focusSession The completed focus session to summarize.
-     * @param theme The theme providing the color palette.
+     * @param focusSession The completed session
+     * @param theme Theme providing the color palette
      */
     public SessionSummaryPanel(FocusSession focusSession, Theme theme) {
         this(focusSession, 0, theme);
     }
 
     /**
-     * Initializes a new session summary panel for the specified focus session, current streak, and custom theme.
+     * Creates a session summary panel for the given completed session with current streak and a custom theme
      *
-     * @param focusSession The completed focus session to summarize.
-     * @param currentStreak The current streak count.
-     * @param theme The theme providing the color palette.
+     * @param focusSession The completed session
+     * @param currentStreak The current streak count
+     * @param theme Theme providing the color palette
      */
     public SessionSummaryPanel(FocusSession focusSession, int currentStreak, Theme theme) {
         super(theme);
@@ -146,7 +152,7 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== INITIALIZATION METHODS =====
 
     /**
-     * Creates and initializes all UI components for the panel.
+     * Creates all UI components
      */
     private void createComponents() {
         // Completion message
@@ -171,12 +177,6 @@ public class SessionSummaryPanel extends BasePanel {
         scoreDescriptionLabel.setFont(UIConstants.getHeadingFont());
         scoreDescriptionLabel.setTextFill(scoreColor);
         scoreDescriptionLabel.setTextAlignment(TextAlignment.CENTER);
-        if (score >= 95) {
-             FontIcon starIcon = new FontIcon("fth-star");
-             starIcon.setIconColor(scoreColor);
-             scoreDescriptionLabel.setGraphic(starIcon);
-             scoreDescriptionLabel.setGraphicTextGap(8);
-        }
 
         // Duration
         int actualMinutes = focusSession.getActualDurationMinutes();
@@ -211,9 +211,7 @@ public class SessionSummaryPanel extends BasePanel {
                     String.format("Most distracting: %s (%d sec)", mostDistracting, distractedSeconds)
             );
         } else {
-            mostDistractingLabel = new Label("No distractions - perfect focus!");
-            mostDistractingLabel.setGraphic(new FontIcon("fth-target"));
-            mostDistractingLabel.setGraphicTextGap(8);
+            mostDistractingLabel = new Label("No distractions - perfect focus! 🎯");
         }
         mostDistractingLabel.setFont(UIConstants.getBodyFont());
         mostDistractingLabel.setTextFill(getTextSecondaryColor());
@@ -221,10 +219,8 @@ public class SessionSummaryPanel extends BasePanel {
         // Streak update
         boolean qualifies = focusSession.qualifiesForStreak();
         if (qualifies) {
-            streakUpdateLabel = new Label(String.format("Streak: %d day%s!", currentStreak, currentStreak == 1 ? "" : "s"));
+            streakUpdateLabel = new Label(String.format("✨ Streak: %d day%s!", currentStreak, currentStreak == 1 ? "" : "s"));
             streakUpdateLabel.setTextFill(getSuccessColor());
-            streakUpdateLabel.setGraphic(new FontIcon("fth-trending-up"));
-            streakUpdateLabel.setGraphicTextGap(8);
         } else {
             streakUpdateLabel = new Label("Reach 80+ score and 30+ min to build your streak");
             streakUpdateLabel.setTextFill(getTextMutedColor());
@@ -244,10 +240,11 @@ public class SessionSummaryPanel extends BasePanel {
                         "-fx-cursor: hand;" +
                         "-fx-font-weight: bold;"
         );
+        UIConstants.setupButtonAnimation(continueButton);
     }
 
     /**
-     * Arranges the UI components in the panel layout.
+     * Arranges components in the layout
      */
     private void layoutComponents() {
         this.getChildren().clear();
@@ -300,7 +297,7 @@ public class SessionSummaryPanel extends BasePanel {
     }
 
     /**
-     * Configures the event handlers for the UI components.
+     * Sets up event handlers
      */
     private void setupEventHandlers() {
         continueButton.setOnAction(event -> handleContinue());
@@ -309,7 +306,7 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== EVENT HANDLERS =====
 
     /**
-     * Handles the logic when the CONTINUE button is clicked.
+     * Handles CONTINUE button click
      */
     private void handleContinue() {
         if (callback != null) {
@@ -320,10 +317,10 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== UTILITY METHODS =====
 
     /**
-     * Retrieves the color associated with a given focus score.
+     * Gets the color for a given score
      *
-     * @param score The focus score ranging from 0 to 100.
-     * @return The {@link Color} corresponding to the score.
+     * @param score Focus score (0-100)
+     * @return Color for the score
      */
     private Color getScoreColor(int score) {
         if (score >= UIConstants.MIN_STREAK_SCORE) {
@@ -336,14 +333,14 @@ public class SessionSummaryPanel extends BasePanel {
     }
 
     /**
-     * Retrieves the description text for a given focus score.
+     * Gets a description for a given score
      *
-     * @param score The focus score ranging from 0 to 100.
-     * @return A {@link String} describing the focus level.
+     * @param score Focus score (0-100)
+     * @return Description text
      */
     private String getScoreDescription(int score) {
         if (score >= 95) {
-            return "Exceptional Focus!";
+            return "Exceptional Focus! 🌟";
         } else if (score >= 85) {
             return "Excellent Focus!";
         } else if (score >= 70) {
@@ -360,18 +357,18 @@ public class SessionSummaryPanel extends BasePanel {
     // ===== PUBLIC METHODS =====
 
     /**
-     * Sets the callback for handling panel events.
+     * Sets the callback for panel events
      *
-     * @param callback The callback implementation to receive events.
+     * @param callback Callback to receive events
      */
     public void setCallback(SummaryCallback callback) {
         this.callback = callback;
     }
 
     /**
-     * Retrieves the focus session summarized by this panel.
+     * Gets the focus session
      *
-     * @return The {@link FocusSession} instance.
+     * @return Focus session
      */
     public FocusSession getFocusSession() {
         return focusSession;

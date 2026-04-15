@@ -286,6 +286,51 @@ public class UIConstants {
     public static final int ANIMATION_SLOW_MS = 600;
 
     /**
+     * Applies a smooth scale animation effect to buttons on hover and press.
+     *
+     * @param button The button to animate.
+     */
+    public static void setupButtonAnimation(javafx.scene.control.Button button) {
+        javafx.animation.ScaleTransition hoverTransition = new javafx.animation.ScaleTransition(javafx.util.Duration.millis(ANIMATION_FAST_MS), button);
+        javafx.animation.ScaleTransition pressTransition = new javafx.animation.ScaleTransition(javafx.util.Duration.millis(50), button);
+
+        button.setOnMouseEntered(e -> {
+            hoverTransition.stop();
+            hoverTransition.setToX(1.05);
+            hoverTransition.setToY(1.05);
+            hoverTransition.play();
+        });
+
+        button.setOnMouseExited(e -> {
+            hoverTransition.stop();
+            hoverTransition.setToX(1.0);
+            hoverTransition.setToY(1.0);
+            hoverTransition.play();
+        });
+
+        button.setOnMousePressed(e -> {
+            hoverTransition.stop();
+            pressTransition.stop();
+            pressTransition.setToX(0.95);
+            pressTransition.setToY(0.95);
+            pressTransition.play();
+        });
+
+        button.setOnMouseReleased(e -> {
+            pressTransition.stop();
+            hoverTransition.stop();
+            if (button.isHover()) {
+                hoverTransition.setToX(1.05);
+                hoverTransition.setToY(1.05);
+            } else {
+                hoverTransition.setToX(1.0);
+                hoverTransition.setToY(1.0);
+            }
+            hoverTransition.play();
+        });
+    }
+
+    /**
      * Private constructor to prevent instantiation.
      *
      * @throws AssertionError if instantiation is attempted.
