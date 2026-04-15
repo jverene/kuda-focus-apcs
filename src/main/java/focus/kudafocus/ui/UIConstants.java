@@ -291,41 +291,22 @@ public class UIConstants {
      * @param button The button to animate.
      */
     public static void setupButtonAnimation(javafx.scene.control.Button button) {
-        javafx.animation.TranslateTransition translateTransition = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(120), button);
-        // We use integer values for offsets strictly to avoid subpixel text "smearing" or "jittering".
-        // No effects (like DropShadow) or Opacity changes, as those disable JavaFX's LCD subpixel anti-aliasing for Text.
-
-        button.setOnMouseEntered(e -> {
-            translateTransition.stop();
-            translateTransition.setDuration(javafx.util.Duration.millis(120));
-            translateTransition.setToY(-2); // Lift up exactly 2 integer pixels
-            translateTransition.play();
-        });
-
-        button.setOnMouseExited(e -> {
-            translateTransition.stop();
-            translateTransition.setDuration(javafx.util.Duration.millis(120));
-            translateTransition.setToY(0); // Return to baseline exactly
-            translateTransition.play();
-        });
-
-        button.setOnMousePressed(e -> {
-            translateTransition.stop();
-            // Push button down
-            translateTransition.setDuration(javafx.util.Duration.millis(50));
-            translateTransition.setToY(1); // slightly depressed
-            translateTransition.play();
-        });
-
-        button.setOnMouseReleased(e -> {
-            translateTransition.stop();
-            translateTransition.setDuration(javafx.util.Duration.millis(120));
-            if (button.isHover()) {
-                translateTransition.setToY(-2);
-            } else {
-                translateTransition.setToY(0);
+        // Freeze programmatic font so CSS pseudo-classes don't discard it, causing horizontal shrinking
+        if (button.getFont() != null) {
+            String currentStyle = button.getStyle() != null ? button.getStyle() : "";
+            if (!currentStyle.contains("-fx-font-size")) {
+                button.setStyle(currentStyle + (currentStyle.endsWith(";") ? "" : ";") + " -fx-font-size: " + button.getFont().getSize() + "px;");
             }
-            translateTransition.play();
+        }
+
+        // We completely omit JavaFX Transitions. Hardware accelerated caching on translated Nodes
+        // forcefully switches LCD anti-aliasing to Grayscale, creating severe text thinning during hover.
+        button.setOnMouseEntered(e -> button.setTranslateY(-2));
+        button.setOnMouseExited(e -> button.setTranslateY(0));
+        button.setOnMousePressed(e -> button.setTranslateY(1));
+        button.setOnMouseReleased(e -> {
+            if (button.isHover()) button.setTranslateY(-2);
+            else button.setTranslateY(0);
         });
     }
 
