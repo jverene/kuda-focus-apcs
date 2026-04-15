@@ -299,14 +299,29 @@ public class UIConstants {
             }
         }
 
-        // We completely omit JavaFX Transitions. Hardware accelerated caching on translated Nodes
-        // forcefully switches LCD anti-aliasing to Grayscale, creating severe text thinning during hover.
-        button.setOnMouseEntered(e -> button.setTranslateY(-2));
-        button.setOnMouseExited(e -> button.setTranslateY(0));
-        button.setOnMousePressed(e -> button.setTranslateY(1));
+        // We use a Timeline to manually interpolate translateY to avoid the hardware caching 
+        // side-effects forced by TranslateTransition, which drops LCD subpixel anti-aliasing.
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline();
+        
+        button.setOnMouseEntered(e -> {
+            timeline.stop();
+            timeline.getKeyFrames().setAll(new javafx.animation.KeyFrame(javafx.util.Duration.millis(120), new javafx.animation.KeyValue(button.translateYProperty(), -2)));
+            timeline.play();
+        });
+        button.setOnMouseExited(e -> {
+            timeline.stop();
+            timeline.getKeyFrames().setAll(new javafx.animation.KeyFrame(javafx.util.Duration.millis(120), new javafx.animation.KeyValue(button.translateYProperty(), 0)));
+            timeline.play();
+        });
+        button.setOnMousePressed(e -> {
+            timeline.stop();
+            timeline.getKeyFrames().setAll(new javafx.animation.KeyFrame(javafx.util.Duration.millis(50), new javafx.animation.KeyValue(button.translateYProperty(), 1)));
+            timeline.play();
+        });
         button.setOnMouseReleased(e -> {
-            if (button.isHover()) button.setTranslateY(-2);
-            else button.setTranslateY(0);
+            timeline.stop();
+            timeline.getKeyFrames().setAll(new javafx.animation.KeyFrame(javafx.util.Duration.millis(120), new javafx.animation.KeyValue(button.translateYProperty(), button.isHover() ? -2 : 0)));
+            timeline.play();
         });
     }
 
