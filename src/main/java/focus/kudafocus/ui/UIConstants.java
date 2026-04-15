@@ -291,42 +291,67 @@ public class UIConstants {
      * @param button The button to animate.
      */
     public static void setupButtonAnimation(javafx.scene.control.Button button) {
-        javafx.animation.ScaleTransition hoverTransition = new javafx.animation.ScaleTransition(javafx.util.Duration.millis(ANIMATION_FAST_MS), button);
-        javafx.animation.ScaleTransition pressTransition = new javafx.animation.ScaleTransition(javafx.util.Duration.millis(50), button);
+        javafx.animation.TranslateTransition translateTransition = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(ANIMATION_FAST_MS), button);
+        javafx.animation.FadeTransition fadeTransition = new javafx.animation.FadeTransition(javafx.util.Duration.millis(ANIMATION_FAST_MS), button);
 
         button.setOnMouseEntered(e -> {
-            hoverTransition.stop();
-            hoverTransition.setToX(1.05);
-            hoverTransition.setToY(1.05);
-            hoverTransition.play();
+            translateTransition.stop();
+            fadeTransition.stop();
+            
+            translateTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
+            fadeTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
+            
+            translateTransition.setToY(-2.0);
+            fadeTransition.setToValue(0.9);
+            
+            translateTransition.play();
+            fadeTransition.play();
         });
 
         button.setOnMouseExited(e -> {
-            hoverTransition.stop();
-            hoverTransition.setToX(1.0);
-            hoverTransition.setToY(1.0);
-            hoverTransition.play();
+            translateTransition.stop();
+            fadeTransition.stop();
+            
+            translateTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
+            fadeTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
+            
+            translateTransition.setToY(0);
+            fadeTransition.setToValue(1.0);
+            
+            translateTransition.play();
+            fadeTransition.play();
         });
 
         button.setOnMousePressed(e -> {
-            hoverTransition.stop();
-            pressTransition.stop();
-            pressTransition.setToX(0.95);
-            pressTransition.setToY(0.95);
-            pressTransition.play();
+            translateTransition.stop();
+            fadeTransition.stop();
+            
+            translateTransition.setDuration(javafx.util.Duration.millis(50));
+            fadeTransition.setDuration(javafx.util.Duration.millis(50));
+            
+            translateTransition.setToY(1.0);
+            fadeTransition.setToValue(0.7);
+            
+            translateTransition.play();
+            fadeTransition.play();
         });
 
         button.setOnMouseReleased(e -> {
-            pressTransition.stop();
-            hoverTransition.stop();
+            translateTransition.stop();
+            fadeTransition.stop();
+            
+            translateTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
+            fadeTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
+            
             if (button.isHover()) {
-                hoverTransition.setToX(1.05);
-                hoverTransition.setToY(1.05);
+                translateTransition.setToY(-2.0);
+                fadeTransition.setToValue(0.9);
             } else {
-                hoverTransition.setToX(1.0);
-                hoverTransition.setToY(1.0);
+                translateTransition.setToY(0);
+                fadeTransition.setToValue(1.0);
             }
-            hoverTransition.play();
+            translateTransition.play();
+            fadeTransition.play();
         });
     }
 
