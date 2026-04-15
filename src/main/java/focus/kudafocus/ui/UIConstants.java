@@ -291,67 +291,41 @@ public class UIConstants {
      * @param button The button to animate.
      */
     public static void setupButtonAnimation(javafx.scene.control.Button button) {
-        javafx.animation.TranslateTransition translateTransition = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(ANIMATION_FAST_MS), button);
-        javafx.animation.FadeTransition fadeTransition = new javafx.animation.FadeTransition(javafx.util.Duration.millis(ANIMATION_FAST_MS), button);
+        javafx.animation.TranslateTransition translateTransition = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(120), button);
+        // We use integer values for offsets strictly to avoid subpixel text "smearing" or "jittering".
+        // No effects (like DropShadow) or Opacity changes, as those disable JavaFX's LCD subpixel anti-aliasing for Text.
 
         button.setOnMouseEntered(e -> {
             translateTransition.stop();
-            fadeTransition.stop();
-            
-            translateTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
-            fadeTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
-            
-            translateTransition.setToY(-2.0);
-            fadeTransition.setToValue(0.9);
-            
+            translateTransition.setDuration(javafx.util.Duration.millis(120));
+            translateTransition.setToY(-2); // Lift up exactly 2 integer pixels
             translateTransition.play();
-            fadeTransition.play();
         });
 
         button.setOnMouseExited(e -> {
             translateTransition.stop();
-            fadeTransition.stop();
-            
-            translateTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
-            fadeTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
-            
-            translateTransition.setToY(0);
-            fadeTransition.setToValue(1.0);
-            
+            translateTransition.setDuration(javafx.util.Duration.millis(120));
+            translateTransition.setToY(0); // Return to baseline exactly
             translateTransition.play();
-            fadeTransition.play();
         });
 
         button.setOnMousePressed(e -> {
             translateTransition.stop();
-            fadeTransition.stop();
-            
+            // Push button down
             translateTransition.setDuration(javafx.util.Duration.millis(50));
-            fadeTransition.setDuration(javafx.util.Duration.millis(50));
-            
-            translateTransition.setToY(1.0);
-            fadeTransition.setToValue(0.7);
-            
+            translateTransition.setToY(1); // slightly depressed
             translateTransition.play();
-            fadeTransition.play();
         });
 
         button.setOnMouseReleased(e -> {
             translateTransition.stop();
-            fadeTransition.stop();
-            
-            translateTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
-            fadeTransition.setDuration(javafx.util.Duration.millis(ANIMATION_FAST_MS));
-            
+            translateTransition.setDuration(javafx.util.Duration.millis(120));
             if (button.isHover()) {
-                translateTransition.setToY(-2.0);
-                fadeTransition.setToValue(0.9);
+                translateTransition.setToY(-2);
             } else {
                 translateTransition.setToY(0);
-                fadeTransition.setToValue(1.0);
             }
             translateTransition.play();
-            fadeTransition.play();
         });
     }
 
