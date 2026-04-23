@@ -183,6 +183,26 @@ public class SessionMonitor {
     }
 
     /**
+     * Pauses the monitoring timeline without ending the current violation.
+     */
+    public void pause() {
+        if (!running || monitoringTimeline == null) {
+            return;
+        }
+        monitoringTimeline.pause();
+    }
+
+    /**
+     * Resumes the monitoring timeline after being paused.
+     */
+    public void resume() {
+        if (!running || monitoringTimeline == null) {
+            return;
+        }
+        monitoringTimeline.play();
+    }
+
+    /**
      * Stops the monitoring timeline.
      */
     public void stop() {

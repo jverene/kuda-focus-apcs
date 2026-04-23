@@ -323,15 +323,25 @@ public class ActiveSessionPanel extends BasePanel {
         if (paused) {
             // Resume
             timer.resume();
+            if (sessionMonitor != null) {
+                sessionMonitor.resume();
+            }
             paused = false;
             pauseButton.setText("PAUSE");
             statusLabel.setVisible(false);
+            progressRing.setOpacity(1.0);
+            timeLabel.setOpacity(1.0);
         } else {
             // Pause
             timer.pause();
+            if (sessionMonitor != null) {
+                sessionMonitor.pause();
+            }
             paused = true;
             pauseButton.setText("RESUME");
             statusLabel.setVisible(true);
+            progressRing.setOpacity(0.4);
+            timeLabel.setOpacity(0.5);
         }
     }
 
