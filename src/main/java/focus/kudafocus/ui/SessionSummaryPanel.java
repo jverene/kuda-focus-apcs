@@ -167,15 +167,16 @@ public class SessionSummaryPanel extends BasePanel {
         scoreLabel.setFont(UIConstants.getDisplayFont());
         scoreLabel.setTextAlignment(TextAlignment.CENTER);
 
-        // Color code the score
+        // Color code the score — must use inline CSS to override parent's -fx-text-background-color
         Color scoreColor = getScoreColor(score);
-        scoreLabel.setTextFill(scoreColor);
+        String scoreColorCSS = toRGBCode(scoreColor);
+        scoreLabel.setStyle("-fx-text-fill: " + scoreColorCSS + ";");
 
         // Score description
         String description = getScoreDescription(score);
         scoreDescriptionLabel = new Label(description);
         scoreDescriptionLabel.setFont(UIConstants.getHeadingFont());
-        scoreDescriptionLabel.setTextFill(scoreColor);
+        scoreDescriptionLabel.setStyle("-fx-text-fill: " + scoreColorCSS + ";");
         scoreDescriptionLabel.setTextAlignment(TextAlignment.CENTER);
 
         // Duration
