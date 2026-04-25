@@ -201,8 +201,8 @@ public class AppSelectionModal extends Stage {
         UIConstants.setupButtonAnimation(selectAllDistractingButton);
         selectAllDistractingButton.setOnAction(event -> {
             selectedApps.addAll(COMMON_DISTRACTIONS.keySet());
-            Set<String> currentSites = new HashSet<>(getSelectedWebsites());
-            currentSites.addAll(COMMON_DISTRACTING_SITES.keySet());
+            LinkedHashSet<String> currentSites = new LinkedHashSet<>(COMMON_DISTRACTING_SITES.keySet());
+            currentSites.addAll(getSelectedWebsites());
             websitesTextArea.setText(String.join(", ", currentSites));
             renderAppList(searchField.getText());
             updateStatusLabel();
