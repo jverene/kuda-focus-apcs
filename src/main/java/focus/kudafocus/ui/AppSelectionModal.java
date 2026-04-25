@@ -47,9 +47,16 @@ import java.util.stream.Collectors;
 public class AppSelectionModal extends Stage {
 
     /**
-     * A map of common distracting applications and their categories.
+     * A map of common distracting desktop applications and their categories.
+     * Only includes apps that have native macOS/Windows processes.
      */
     private static final Map<String, String> COMMON_DISTRACTIONS = createCommonDistractions();
+
+    /**
+     * A map of commonly distracting websites and their categories.
+     * These are pre-filled in the website text area by "Select All Distracting".
+     */
+    private static final Map<String, String> COMMON_DISTRACTING_SITES = createCommonDistractingSites();
 
     /**
      * The monitor used to retrieve currently running processes.
@@ -194,6 +201,9 @@ public class AppSelectionModal extends Stage {
         UIConstants.setupButtonAnimation(selectAllDistractingButton);
         selectAllDistractingButton.setOnAction(event -> {
             selectedApps.addAll(COMMON_DISTRACTIONS.keySet());
+            Set<String> currentSites = new HashSet<>(getSelectedWebsites());
+            currentSites.addAll(COMMON_DISTRACTING_SITES.keySet());
+            websitesTextArea.setText(String.join(", ", currentSites));
             renderAppList(searchField.getText());
             updateStatusLabel();
         });
@@ -203,6 +213,7 @@ public class AppSelectionModal extends Stage {
         UIConstants.setupButtonAnimation(clearAllButton);
         clearAllButton.setOnAction(event -> {
             selectedApps.clear();
+            websitesTextArea.clear();
             renderAppList(searchField.getText());
             updateStatusLabel();
         });
@@ -468,13 +479,26 @@ public class AppSelectionModal extends Stage {
     private static Map<String, String> createCommonDistractions() {
         Map<String, String> apps = new LinkedHashMap<>();
         apps.put("Discord", "Social");
-        apps.put("Instagram", "Social");
         apps.put("Steam", "Gaming");
         apps.put("Messages", "Messaging");
-        apps.put("YouTube", "Video");
-        apps.put("TikTok", "Video");
-        apps.put("X", "Social");
-        apps.put("Reddit", "Social");
+        apps.put("Spotify", "Entertainment");
+        apps.put("Slack", "Communication");
         return apps;
+    }
+
+    /**
+     * Creates and returns a map of commonly distracting websites and their categories.
+     *
+     * @return A map containing common distracting website domains.
+     */
+    private static Map<String, String> createCommonDistractingSites() {
+        Map<String, String> sites = new LinkedHashMap<>();
+        sites.put("youtube.com", "Video");
+        sites.put("instagram.com", "Social");
+        sites.put("tiktok.com", "Video");
+        sites.put("x.com", "Social");
+        sites.put("reddit.com", "Social");
+        sites.put("twitter.com", "Social");
+        return sites;
     }
 }
