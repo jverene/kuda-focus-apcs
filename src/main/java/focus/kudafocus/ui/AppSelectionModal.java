@@ -94,6 +94,11 @@ public class AppSelectionModal extends Stage {
     private final TextArea websitesTextArea;
 
     /**
+     * The row of quick-select chips for common distracting websites.
+     */
+    private final HBox siteChipsRow;
+
+    /**
      * The theme providing the color palette for the modal.
      */
     private final Theme theme;
@@ -146,6 +151,7 @@ public class AppSelectionModal extends Stage {
         this.statusLabel = new Label();
         this.searchField = new TextField();
         this.websitesTextArea = new TextArea();
+        this.siteChipsRow = new HBox(UIConstants.SPACING_SM);
         this.confirmed = false;
 
         // Initialize websites text area with initial values
@@ -201,11 +207,15 @@ public class AppSelectionModal extends Stage {
         UIConstants.setupButtonAnimation(selectAllDistractingButton);
         selectAllDistractingButton.setOnAction(event -> {
             selectedApps.addAll(COMMON_DISTRACTIONS.keySet());
-            LinkedHashSet<String> currentSites = new LinkedHashSet<>(COMMON_DISTRACTING_SITES.keySet());
-            currentSites.addAll(getSelectedWebsites());
-            websitesTextArea.setText(String.join(", ", currentSites));
+            // Activate all site chips
+            for (javafx.scene.Node node : siteChipsRow.getChildren()) {
+                if (node instanceof Button) {
+                    node.setUserData(true);
+                    updateChipStyle((Button) node, true);
+                }
+            }
+            syncSitesFromChips();
             renderAppList(searchField.getText());
-            updateStatusLabel();
         });
 
         Button clearAllButton = new Button("Clear All");
@@ -213,6 +223,13 @@ public class AppSelectionModal extends Stage {
         UIConstants.setupButtonAnimation(clearAllButton);
         clearAllButton.setOnAction(event -> {
             selectedApps.clear();
+            // Deactivate all site chips
+            for (javafx.scene.Node node : siteChipsRow.getChildren()) {
+                if (node instanceof Button) {
+                    node.setUserData(false);
+                    updateChipStyle((Button) node, false);
+                }
+            }
             websitesTextArea.clear();
             renderAppList(searchField.getText());
             updateStatusLabel();
@@ -227,6 +244,26 @@ public class AppSelectionModal extends Stage {
         Label sitesLabel = new Label("Websites (comma-separated):");
         sitesLabel.setFont(UIConstants.getBodyFont());
         sitesLabel.setTextFill(theme.getTextPrimary());
+
+        // Quick-select chips for common distracting sites
+        siteChipsRow.setAlignment(Pos.CENTER_LEFT);
+        siteChipsRow.setWrapText(true);
+        Set<String> initiallySelectedSites = new HashSet<>(initiallySelectedWebsites != null ? initiallySelectedWebsites : new ArrayList<>());
+        for (Map.Entry<String, String> entry : COMMON_DISTRACTING_SITES.entrySet()) {
+            String domain = entry.getKey();
+            Button chip = new Button(domain);
+            chip.setFont(UIConstants.getTinyFont());
+            boolean active = initiallySelectedSites.contains(domain);
+            updateChipStyle(chip, active);
+            chip.setUserData(active);
+            chip.setOnAction(e -> {
+                boolean nowActive = !(boolean) chip.getUserData();
+                chip.setUserData(nowActive);
+                updateChipStyle(chip, nowActive);
+                syncSitesFromChips();
+            });
+            siteChipsRow.getChildren().add(chip);
+        }
 
         websitesTextArea.setPromptText("e.g., youtube.com, instagram.com, reddit.com");
         websitesTextArea.setFont(UIConstants.getSmallFont());
@@ -267,6 +304,7 @@ public class AppSelectionModal extends Stage {
                 scrollPane,
                 new Separator(),
                 sitesLabel,
+                siteChipsRow,
                 websitesTextArea
         );
         content.getChildren().addAll(buttonRow);
@@ -500,5 +538,51 @@ public class AppSelectionModal extends Stage {
         sites.put("reddit.com", "Social");
         sites.put("twitter.com", "Social");
         return sites;
+    }
+
+    /**
+     * Updates the visual style of a website chip button to reflect its active state.
+     *
+     * @param chip The chip button to style.
+     * @param active Whether the chip is in the selected state.
+     */
+    private void updateChipStyle(Button chip, boolean active) {
+        if (active) {
+            chip.setStyle(
+                    "-fx-background-color: " + toRGBCode(theme.getAccentColor()) + ";" +
+                            "-fx-text-fill: white;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-padding: 4 10 4 10;" +
+                            "-fx-cursor: hand;"
+            );
+        } else {
+            chip.setStyle(
+                    "-fx-background-color: " + toRGBCode(theme.getBackgroundSecondary()) + ";" +
+                            "-fx-text-fill: " + toRGBCode(theme.getTextSecondary()) + ";" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-padding: 4 10 4 10;" +
+                            "-fx-cursor: hand;"
+            );
+        }
+    }
+
+    /**
+     * Syncs the website text area with the current state of all site chips.
+     * Active chip domains appear first, followed by any manually typed domains.
+     */
+    private void syncSitesFromChips() {
+        LinkedHashSet<String> domains = new LinkedHashSet<>();
+        // Collect active chips first (preserves COMMON_DISTRACTING_SITES order)
+        for (Map.Entry<String, String> entry : COMMON_DISTRACTING_SITES.entrySet()) {
+            domains.add(entry.getKey());
+        }
+        // Append any manually typed domains that aren't already included
+        for (String manual : getSelectedWebsites()) {
+            if (!COMMON_DISTRACTING_SITES.containsKey(manual)) {
+                domains.add(manual);
+            }
+        }
+        websitesTextArea.setText(String.join(", ", domains));
+        updateStatusLabel();
     }
 }
