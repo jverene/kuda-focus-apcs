@@ -247,7 +247,6 @@ public class AppSelectionModal extends Stage {
 
         // Quick-select chips for common distracting sites
         siteChipsRow.setAlignment(Pos.CENTER_LEFT);
-        siteChipsRow.setWrapText(true);
         Set<String> initiallySelectedSites = new HashSet<>(initiallySelectedWebsites != null ? initiallySelectedWebsites : new ArrayList<>());
         for (Map.Entry<String, String> entry : COMMON_DISTRACTING_SITES.entrySet()) {
             String domain = entry.getKey();
@@ -572,9 +571,14 @@ public class AppSelectionModal extends Stage {
      */
     private void syncSitesFromChips() {
         LinkedHashSet<String> domains = new LinkedHashSet<>();
-        // Collect active chips first (preserves COMMON_DISTRACTING_SITES order)
-        for (Map.Entry<String, String> entry : COMMON_DISTRACTING_SITES.entrySet()) {
-            domains.add(entry.getKey());
+        // Collect only active chips, preserving COMMON_DISTRACTING_SITES order
+        for (javafx.scene.Node node : siteChipsRow.getChildren()) {
+            if (node instanceof Button) {
+                Button chip = (Button) node;
+                if (Boolean.TRUE.equals(chip.getUserData())) {
+                    domains.add(chip.getText());
+                }
+            }
         }
         // Append any manually typed domains that aren't already included
         for (String manual : getSelectedWebsites()) {
