@@ -1,138 +1,86 @@
-# KUDA FOCUS
+# Kuda Focus
 
-**Stay focused. Track progress. Build streaks.**
-
-A minimalist desktop application helping students maintain focus through smart process monitoring, distraction tracking, and an accountability-focused scoring system.
-
-## Features
-
-- **Circular Timer Interface** - Intuitive iPhone-style timer with drag-to-select duration (0-3 hours)
-- **Smart Process Monitoring** - Detects when you open distracting applications during focus sessions
-- **Focus Score System** - Quantifies session quality on a 0-100 scale based on distraction behavior
-- **Streak Tracking** - Build momentum with consecutive days of productive focus sessions
-- **Analytics Dashboard** - Visualize progress with calendar views, graphs, and personal bests
-- **Local Data Storage** - All data stored locally for complete privacy
+A desktop application that helps students stay focused during study sessions. It monitors running processes, tracks distractions, and calculates a focus score.
 
 ## Requirements
 
 - Java 11 or higher
 - Maven 3.6 or higher
-- macOS (primary platform, Windows support planned)
+- macOS (primary platform)
 
-## Installation
+## Install
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/jverene/kuda-focus-apcs.git
-   cd kuda-focus-apcs
-   ```
+```bash
+git clone https://github.com/jverene/kuda-focus-apcs.git
+cd kuda-focus-apcs
+mvn clean install
+```
 
-2. Build the project:
-   ```bash
-   mvn clean install
-   ```
+## Run
 
-## Usage
-
-Run the application:
 ```bash
 mvn javafx:run
 ```
 
-Or build an executable JAR:
+Create an executable JAR:
+
 ```bash
 mvn package
 java -jar target/kudafocus-1.0.0.jar
 ```
 
-## How It Works
+## How it works
 
-1. **Set Your Timer** - Drag around the circular interface to select your focus duration
-2. **Choose Apps to Block** - Select which applications should be blocked during your session
-3. **Start Focusing** - Begin your session and work without distractions
-4. **Stay Accountable** - If you open a blocked app, a gentle overlay reminds you to stay focused
-5. **Review Your Score** - At session end, see your focus score and distraction analysis
-6. **Build Streaks** - Achieve scores of 80+ to count toward your daily streak
+1. Set a focus duration using the circular timer (0 to 3 hours).
+2. Select applications to block during the session.
+3. Start the session. The app monitors running processes.
+4. When you open a blocked app, an overlay reminds you to refocus.
+5. At the end of the session, view your focus score and distraction report.
 
-## Focus Score Calculation
+## Focus score
 
-Your focus score (0-100) is calculated as:
-- **Base Score**: 100 points
-- **Violation Penalty**: -5 points per distraction occurrence
-- **Dismissal Penalty**: -2 points per overlay dismissal
-- **Time Penalty**: -1 point per minute spent on blocked apps
+The score ranges from 0 to 100. The calculation starts at 100 and subtracts penalties.
 
-**Example**: Opening Discord twice (2 violations), dismissing the overlay 11 times (11 dismissals), and spending 2.75 minutes distracted results in a score of 60.
+| Event | Penalty |
+|-------|---------|
+| Distraction occurrence | -5 points |
+| Overlay dismissal | -2 points |
+| Minute on blocked app | -1 point |
 
-## Streak System
+## Streak system
 
-A session qualifies for your streak if it meets all of these criteria:
-- Duration of 30 minutes or more
-- Focus score of 80 or higher
-- Completed successfully (not abandoned)
+A session counts toward your streak when all conditions are true:
 
-Your streak counter shows consecutive days with at least one qualifying session. The streak data is automatically saved to `~/.kudafocus/streak_data.json` and persists across app sessions.
+- Duration is 30 minutes or more
+- Focus score is 80 or higher
+- Session completes (not abandoned)
 
-**Streak Logic:**
-- First qualifying session starts your streak at 1 day
-- Multiple qualifying sessions on the same day only count once
-- Consecutive days with qualifying sessions increment your streak
-- Missing a day (no qualifying session) resets your streak to 1 on the next qualifying session
-- Non-qualifying sessions don't affect your current streak
+Data saves to `~/.kudafocus/streak_data.json`.
 
-## Project Structure
+## Tests
 
-```
-src/main/java/focus/kudafocus/
-├── ui/              # JavaFX user interface components
-├── core/            # Session management and timer logic
-├── monitoring/      # Process detection and violation tracking
-├── analytics/       # Statistics, streaks, and personal bests
-└── data/            # Data models and JSON persistence
-```
-
-## OOP Design Principles
-
-This project demonstrates key object-oriented programming concepts required for APCS:
-
-- **Encapsulation**: FocusSession class hides internal session data and score calculation
-- **Abstraction**: AppMonitor abstract class defines common interface for platform-specific implementations
-- **Inheritance**: BasePanel class provides shared styling to all UI panel subclasses
-- **Polymorphism**: Different OS monitors (macOS, Windows) implement the same abstract interface
-
-## Technologies
-
-- **JavaFX 17** - Modern UI framework
-- **Gson 2.10** - JSON serialization
-- **JUnit 5** - Unit testing
-- **Maven** - Build automation
-
-## For APCS Students
-
-This project demonstrates:
-- File I/O with JSON
-- Data structures (Lists, Maps)
-- Abstract classes and inheritance
-- Encapsulation principles
-- Algorithm design (scoring, streak calculation)
-- Event-driven programming
-
-## Development
-
-Run tests:
 ```bash
 mvn test
 ```
 
-Clean build:
-```bash
-mvn clean compile
+## Project structure
+
 ```
+src/main/java/focus/kudafocus/
+├── ui/              JavaFX components
+├── core/            Session and timer logic
+├── monitoring/      Process detection
+├── analytics/       Statistics and streaks
+└── data/            Models and persistence
+```
+
+## Technologies
+
+- JavaFX 17
+- Gson 2.10
+- JUnit 5
+- Maven
 
 ## License
 
-MIT License - See LICENSE file for details
-
-## Author
-
-Created as an APCS project to help students stay focused and accountable while studying.
+MIT
